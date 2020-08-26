@@ -22,7 +22,7 @@ func main() {
 
 	app.Name = "vela-docker"
 	app.HelpName = "vela-docker"
-	app.Usage = "Vela img plugin for building and publishing images"
+	app.Usage = "Vela Docker plugin for building and publishing images"
 	app.Copyright = "Copyright (c) 2020 Target Brands, Inc. All rights reserved."
 	app.Authors = []*cli.Author{
 		{
@@ -82,5 +82,15 @@ func run(c *cli.Context) error {
 		"registry": "https://hub.docker.com/r/target/vela-docker",
 	}).Info("Vela Docker Plugin")
 
-	return nil
+	// create the plugin
+	p := Plugin{}
+
+	// validate the plugin
+	err := p.Validate()
+	if err != nil {
+		return err
+	}
+
+	// execute the plugin
+	return p.Exec()
 }
