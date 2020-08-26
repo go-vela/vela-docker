@@ -8,7 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Config holds input parameters for the plugin
+// Config holds input parameters for the plugin.
 type Config struct {
 }
 
