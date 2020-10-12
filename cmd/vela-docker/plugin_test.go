@@ -19,6 +19,7 @@ func TestDocker_Plugin_Validate(t *testing.T) {
 			Context: ".",
 			Tags:    []string{"latest"},
 		},
+		Push: &Push{},
 	}
 
 	err := p.Validate()
@@ -33,6 +34,7 @@ func TestDocker_Plugin_Validate_BadBuild(t *testing.T) {
 		Build: &Build{
 			Context: ".",
 		},
+		Push: &Push{},
 	}
 
 	err := p.Validate()

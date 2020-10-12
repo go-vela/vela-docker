@@ -12,6 +12,8 @@ import (
 type Plugin struct {
 	// build arguments loaded for the plugin
 	Build *Build
+	// push arguments loaded for the plugin
+	Push *Push
 }
 
 // Exec formats and runs the commands for building and publishing a Docker image.
@@ -30,7 +32,8 @@ func (p *Plugin) Exec() error {
 		return err
 	}
 
-	return nil
+	// execute push configuration
+	return p.Push.Exec()
 }
 
 // Validate verifies the Plugin is properly configured.
