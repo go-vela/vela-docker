@@ -8,6 +8,7 @@ import (
 	"os/exec"
 
 	"github.com/sirupsen/logrus"
+	"github.com/urfave/cli/v2"
 )
 
 // nolint
@@ -17,6 +18,18 @@ const pushAction = "push"
 type Push struct {
 	// enables skipping image verification (default true)
 	DisableContentTrust bool
+}
+
+// pushFlags represents for config settings on the cli.
+// nolint // ignoring line length on file paths on comments
+var pushFlags = []cli.Flag{
+	&cli.BoolFlag{
+		EnvVars:  []string{"PARAMETER_DISABLE_CONTENT_TRUST"},
+		FilePath: string("/vela/parameters/docker/build/disable-content-trust,/vela/secrets/docker/build/disable-content-trust"),
+		Name:     "build.disable-content-trust",
+		Usage:    "enables skipping image verification (default true)",
+		Value:    true,
+	},
 }
 
 // Command formats and outputs the Build command from

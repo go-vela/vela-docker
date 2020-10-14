@@ -186,14 +186,43 @@ docker-test:
 	@echo
 	@echo "### Testing vela-docker:local image"
 	@docker run --rm \
-		-e BUILD_COMMIT=123abcdefg \
-		-e BUILD_EVENT=push \
-		-e PARAMETER_CONTEXT=/workspace/ \
-		-e PARAMETER_DOCKERFILE=Dockerfile.example \
-		-e PARAMETER_DRY_RUN=true \
-		-e PARAMETER_REGISTRY=index.docker.io \
-		-e PARAMETER_REPO=index.docker.io/target/vela-docker \
-		-e PARAMETER_TAGS=latest \
+		-e BUILD_COMMIT \
+		-e BUILD_EVENT \
+		-e BUILD_TAG \
+		-e DOCKER_USERNAME \
+		-e DOCKER_PASSWORD \
+		-e PARAMETER_ADD_HOSTS=host.company.com \
+		-e PARAMETER_BUILD_ARGS=FOO=BAR \
+		-e PARAMETER_CACHE_FROM=index.docker.in/target/vela-docker \
+		-e PARAMETER_CGROUP_PARENT=parent \
+		-e PARAMETER_COMPRESS=true \
+		-e PARAMETER_CONTEXT=. \
+		-e PARAMETER_CPU='{"period": 1, "quota": 1, "shares": 1, "set_cpus": "(0-3, 0,1)", "set_mems": "(0-3, 0,1)"}' \
+		-e PARAMETER_DISABLE_CONTENT_TRUST=true \
+		-e PARAMETER_FILE=Dockerfile.other \
+		-e PARAMETER_FORCE_RM=true \
+		-e PARAMETER_IMAGE_ID_FILE=path/to/file \
+		-e PARAMETER_ISOLATION=hyperv \
+		-e PARAMETER_LABELS=build.number=1 \
+		-e PARAMETER_MEMORY=1 \	
+		-e PARAMETER_MEMORY_SWAPS=1 \
+		-e PARAMETER_NETWORK=default \
+		-e PARAMETER_NO_CACHE=true \
+		-e PARAMETER_OUTPUTS='type=local,dest=path' \
+		-e PARAMETER_PLATFORM=linux \
+		-e PARAMETER_PROGRESS=plain \
+		-e PARAMETER_PULL=true \
+		-e PARAMETER_QUIET=true \
+		-e PARAMETER_REMOVE=true \
+		-e PARAMETER_SECRETS='id=mysecret,src=/local/secret' \
+		-e PARAMETER_SECURITY_OPTS=seccomp \
+		-e PARAMETER_SHM_SIZES=1 \
+		-e PARAMETER_SQUASH=true \
+		-e PARAMETER_SSH_COMPONENTS='default|<id>[=<socket>|<key>[,<key>]]' \
+		-e PARAMETER_STREAM=true \
+		-e PARAMETER_TAGS=index.docker.io/target/vela-docker:latest \
+		-e PARAMETER_TARGET=build \
+		-e PARAMETER_ULIMITS=1 \
 		-v $(shell pwd):/workspace \
 		vela-docker:local
 
@@ -211,15 +240,37 @@ docker-run:
 		-e BUILD_TAG \
 		-e DOCKER_USERNAME \
 		-e DOCKER_PASSWORD \
-		-e PARAMETER_AUTO_TAG \
+		-e PARAMETER_ADD_HOSTS \
 		-e PARAMETER_BUILD_ARGS \
-		-e PARAMETER_CACHE \
-		-e PARAMETER_CACHE_REPO \
+		-e PARAMETER_CACHE_FROM \
+		-e PARAMETER_CGROUP_PARENT \
+		-e PARAMETER_COMPRESS \
 		-e PARAMETER_CONTEXT \
-		-e PARAMETER_DOCKERFILE \
-		-e PARAMETER_DRY_RUN \
-		-e PARAMETER_REGISTRY \
-		-e PARAMETER_REPO \
+		-e PARAMETER_CPU \
+		-e PARAMETER_DISABLE_CONTENT_TRUST \
+		-e PARAMETER_FILE \
+		-e PARAMETER_FORCE_RM \
+		-e PARAMETER_IMAGE_ID_FILE \
+		-e PARAMETER_ISOLATION \
+		-e PARAMETER_LABELS \
+		-e PARAMETER_MEMORY \	
+		-e PARAMETER_MEMORY_SWAPS \
+		-e PARAMETER_NETWORK \
+		-e PARAMETER_NO_CACHE \
+		-e PARAMETER_OUTPUTS \
+		-e PARAMETER_PLATFORM \
+		-e PARAMETER_PROGRESS \
+		-e PARAMETER_PULL \
+		-e PARAMETER_QUIET \
+		-e PARAMETER_REMOVE \
+		-e PARAMETER_SECRETS \
+		-e PARAMETER_SECURITY_OPTS \
+		-e PARAMETER_SHM_SIZES \
+		-e PARAMETER_SQUASH \
+		-e PARAMETER_SSH_COMPONENTS \
+		-e PARAMETER_STREAM \
 		-e PARAMETER_TAGS \
+		-e PARAMETER_TARGET \
+		-e PARAMETER_ULIMITS \
 		-v $(shell pwd):/workspace \
 		vela-docker:local

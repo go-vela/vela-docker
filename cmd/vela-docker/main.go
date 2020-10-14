@@ -83,7 +83,45 @@ func run(c *cli.Context) error {
 	}).Info("Vela Docker Plugin")
 
 	// create the plugin
-	p := Plugin{}
+	p := Plugin{
+		Build: &Build{
+			AddHosts:            c.StringSlice("build.add-hosts"),
+			BuildArgs:           c.StringSlice("build.build-args"),
+			CacheFrom:           c.String("build.cache-from"),
+			CGroupParent:        c.String("build.cgroup-parent"),
+			Compress:            c.Bool("build.compress"),
+			Context:             c.String("build.context"),
+			CPURaw:              c.String("build.cpu"),
+			DisableContentTrust: c.Bool("build.disable-content-trust"),
+			File:                c.String("build.file"),
+			ForceRM:             c.Bool("build.force-rm"),
+			ImageIDFile:         c.String("build.image-id-file"),
+			Isolation:           c.String("build.isolation"),
+			Labels:              c.StringSlice("build.labels"),
+			Memory:              c.StringSlice("build.memory"),
+			MemorySwaps:         c.StringSlice("build.memory-swaps"),
+			Network:             c.String("build.network"),
+			NoCache:             c.Bool("build.no-cache"),
+			Outputs:             c.StringSlice("build.outputs"),
+			Platform:            c.String("build.platform"),
+			Progress:            c.String("build.progress"),
+			Pull:                c.Bool("build.pull"),
+			Quiet:               c.Bool("build.quiet"),
+			Remove:              c.Bool("build.remove"),
+			Secrets:             c.StringSlice("build.secrets"),
+			SecurityOpts:        c.StringSlice("build.security-opts"),
+			ShmSizes:            c.StringSlice("build.shm-sizes"),
+			Squash:              c.Bool("build.squash"),
+			SshComponents:       c.StringSlice("build.ssh-components"),
+			Stream:              c.Bool("build.stream"),
+			Tags:                c.StringSlice("build.tags"),
+			Target:              c.String("build.target"),
+			Ulimits:             c.StringSlice("build.ulimits"),
+		},
+		Push: &Push{
+			DisableContentTrust: c.Bool("push.disable-content-trust"),
+		},
+	}
 
 	// validate the plugin
 	err := p.Validate()

@@ -153,7 +153,7 @@ var buildFlags = []cli.Flag{
 	&cli.BoolFlag{
 		EnvVars:  []string{"PARAMETER_DISABLE_CONTENT_TRUST"},
 		FilePath: string("/vela/parameters/docker/build/disable-content-trust,/vela/secrets/docker/build/disable-content-trust"),
-		Name:     "build.disable_content_trust",
+		Name:     "build.disable-content-trust",
 		Usage:    "enables skipping image verification (default true)",
 		Value:    true,
 	},
