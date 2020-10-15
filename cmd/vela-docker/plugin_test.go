@@ -20,6 +20,12 @@ func TestDocker_Plugin_Validate(t *testing.T) {
 			Tags:    []string{"latest"},
 		},
 		Push: &Push{},
+		Registry: &Registry{
+			Name:     "index.docker.io",
+			Username: "octocat",
+			Password: "superSecretPassword",
+			DryRun:   false,
+		},
 	}
 
 	err := p.Validate()
@@ -34,7 +40,8 @@ func TestDocker_Plugin_Validate_BadBuild(t *testing.T) {
 		Build: &Build{
 			Context: ".",
 		},
-		Push: &Push{},
+		Push:     &Push{},
+		Registry: &Registry{},
 	}
 
 	err := p.Validate()

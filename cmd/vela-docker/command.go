@@ -14,7 +14,7 @@ import (
 )
 
 // _docker is the path to the executable binary in the image.
-const _docker = "/bin/docker"
+const _docker = "/usr/local/bin/docker"
 
 // execCmd is a helper function to
 // run the provided command.

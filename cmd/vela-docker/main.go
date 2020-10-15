@@ -48,6 +48,15 @@ func main() {
 		},
 	}
 
+	// add build flags
+	app.Flags = append(app.Flags, buildFlags...)
+
+	// add push flags
+	app.Flags = append(app.Flags, pushFlags...)
+
+	// add registry flags
+	app.Flags = append(app.Flags, registryFlags...)
+
 	err := app.Run(os.Args)
 	if err != nil {
 		log.Fatal(err)
@@ -120,6 +129,12 @@ func run(c *cli.Context) error {
 		},
 		Push: &Push{
 			DisableContentTrust: c.Bool("push.disable-content-trust"),
+		},
+		Registry: &Registry{
+			DryRun:   c.Bool("registry.dry-run"),
+			Name:     c.String("registry.name"),
+			Password: c.String("registry.password"),
+			Username: c.String("registry.username"),
 		},
 	}
 

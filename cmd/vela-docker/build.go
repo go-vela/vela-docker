@@ -608,6 +608,8 @@ func (b *Build) Validate() error {
 		return fmt.Errorf("no build tags provided")
 	}
 
+	//TODO Add validation to fields that have custom syntax
+
 	return nil
 }
 
