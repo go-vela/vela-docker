@@ -13,8 +13,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// _docker is the path to the executable binary in the image.
-const _docker = "/usr/local/bin/docker"
+const (
+	// _docker is the path to the executable binary in the image.
+	_docker = "/usr/local/bin/docker"
+	// _dockerd is the path to the executable daemon in the image.
+	_dockerd = "/usr/local/bin/dockerd"
+)
 
 // execCmd is a helper function to
 // run the provided command.

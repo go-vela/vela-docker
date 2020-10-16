@@ -5,6 +5,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"os"
 	"time"
@@ -127,6 +128,7 @@ func run(c *cli.Context) error {
 			Target:              c.String("build.target"),
 			Ulimits:             c.StringSlice("build.ulimits"),
 		},
+		Daemon: &Daemon{},
 		Push: &Push{
 			DisableContentTrust: c.Bool("push.disable-content-trust"),
 		},
@@ -138,8 +140,14 @@ func run(c *cli.Context) error {
 		},
 	}
 
+	// serialize daemon settings into plugin
+	err := json.Unmarshal([]byte(c.String("daemon")), &p.Daemon)
+	if err != nil {
+		return err
+	}
+
 	// validate the plugin
-	err := p.Validate()
+	err = p.Validate()
 	if err != nil {
 		return err
 	}

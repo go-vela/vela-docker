@@ -20,19 +20,19 @@ type Push struct {
 	DisableContentTrust bool
 }
 
-// pushFlags represents for config settings on the cli.
+// pushFlags represents for push settings on the cli.
 // nolint // ignoring line length on file paths on comments
 var pushFlags = []cli.Flag{
 	&cli.BoolFlag{
 		EnvVars:  []string{"PARAMETER_DISABLE_CONTENT_TRUST"},
 		FilePath: string("/vela/parameters/docker/build/disable-content-trust,/vela/secrets/docker/build/disable-content-trust"),
-		Name:     "build.disable-content-trust",
+		Name:     "push.disable-content-trust",
 		Usage:    "enables skipping image verification (default true)",
 		Value:    true,
 	},
 }
 
-// Command formats and outputs the Build command from
+// Command formats and outputs the Push command from
 // the provided configuration to push a Docker image.
 // nolint
 func (p *Push) Command() (*exec.Cmd, error) {

@@ -104,7 +104,7 @@ type (
 	}
 )
 
-// buildFlags represents for config settings on the cli.
+// buildFlags represents for build settings on the cli.
 // nolint // ignoring line length on file paths on comments
 var buildFlags = []cli.Flag{
 	&cli.StringSliceFlag{

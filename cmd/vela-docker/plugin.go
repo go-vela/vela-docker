@@ -12,6 +12,8 @@ import (
 type Plugin struct {
 	// build arguments loaded for the plugin
 	Build *Build
+	// daemon arguments loaded for the plugin
+	Daemon *Daemon
 	// push arguments loaded for the plugin
 	Push *Push
 	// registry arguments loaded for the plugin
@@ -24,6 +26,12 @@ func (p *Plugin) Exec() error {
 
 	// output docker version for troubleshooting
 	err := execCmd(versionCmd())
+	if err != nil {
+		return err
+	}
+
+	// start the docker daemon with configuration
+	err = p.Daemon.Exec()
 	if err != nil {
 		return err
 	}
