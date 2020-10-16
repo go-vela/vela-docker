@@ -28,7 +28,7 @@ func TestDocker_Plugin_Validate(t *testing.T) {
 		},
 	}
 
-	err := p.Validate()
+	err := p.Validate("")
 	if err != nil {
 		t.Errorf("Validate returned err: %v", err)
 	}
@@ -44,7 +44,7 @@ func TestDocker_Plugin_Validate_BadBuild(t *testing.T) {
 		Registry: &Registry{},
 	}
 
-	err := p.Validate()
+	err := p.Validate("")
 	if err == nil {
 		t.Errorf("Validate should have returned err")
 	}

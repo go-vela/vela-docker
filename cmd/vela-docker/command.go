@@ -36,6 +36,20 @@ func execCmd(e *exec.Cmd) error {
 	return e.Run()
 }
 
+// infoCmd is a helper function to check if
+// the daemon is ready.
+func infoCmd() *exec.Cmd {
+	logrus.Trace("creating docker info command")
+
+	// variable to store flags for command
+	var flags []string
+
+	// add flag for version img command
+	flags = append(flags, "info")
+
+	return exec.Command(_docker, flags...)
+}
+
 // versionCmd is a helper function to output
 // the client and server version information.
 func versionCmd() *exec.Cmd {

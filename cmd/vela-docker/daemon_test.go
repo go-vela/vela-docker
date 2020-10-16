@@ -14,8 +14,7 @@ import (
 func TestDocker_Daemon_Command(t *testing.T) {
 	// setup types
 	d := &Daemon{
-		Bip:      "192.168.1.5/24",
-		DataRoot: "/var/lib/docker",
+		Bip: "192.168.1.5/24",
 		DNS: &DNS{
 			Servers:  []string{"10.20.1.2", "10.20.1.3"},
 			Searches: []string{"8.8.8.8"},
@@ -35,18 +34,18 @@ func TestDocker_Daemon_Command(t *testing.T) {
 	// the plugin accepts configuration
 	want := exec.Command(
 		_dockerd,
+		"--data-root=/var/lib/docker",
 		"--host=unix:///var/run/docker.sock",
-		fmt.Sprintf("--bip \"%s\"", d.Bip),
-		fmt.Sprintf("--data-root \"%s\"", d.DataRoot),
-		fmt.Sprintf("--dns \"%s\" --dns \"%s\"", d.DNS.Servers[0], d.DNS.Servers[1]),
-		fmt.Sprintf("--dns-search \"%s\"", d.DNS.Searches[0]),
+		fmt.Sprintf("--bip %s", d.Bip),
+		fmt.Sprintf("--dns %s --dns %s", d.DNS.Servers[0], d.DNS.Servers[1]),
+		fmt.Sprintf("--dns-search %s", d.DNS.Searches[0]),
 		"--experimental",
-		fmt.Sprintf("--insecure-registry \"%s\"", d.InsecureRegistries[0]),
+		fmt.Sprintf("--insecure-registry %s", d.InsecureRegistries[0]),
 		"--ipv6",
-		fmt.Sprintf("--mtu \"%d\"", d.MTU),
-		fmt.Sprintf("--registry-mirror \"%s\"", d.RegistryMirrors[0]),
-		fmt.Sprintf("--storage-driver \"%s\"", d.Storage.Driver),
-		fmt.Sprintf("--storage-opt \"%s\"", d.Storage.Opts[0]),
+		fmt.Sprintf("--mtu %d", d.MTU),
+		fmt.Sprintf("--registry-mirror %s", d.RegistryMirrors[0]),
+		fmt.Sprintf("--storage-driver %s", d.Storage.Driver),
+		fmt.Sprintf("--storage-opt %s", d.Storage.Opts[0]),
 	)
 
 	got, _ := d.Command()

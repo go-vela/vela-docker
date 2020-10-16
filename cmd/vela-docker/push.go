@@ -16,6 +16,8 @@ const pushAction = "push"
 
 // Push represents the plugin configuration for push information.
 type Push struct {
+	// enables naming and optionally a tag in the 'name:tag' format
+	Tag string
 	// enables skipping image verification (default true)
 	DisableContentTrust bool
 }
@@ -28,7 +30,6 @@ var pushFlags = []cli.Flag{
 		FilePath: string("/vela/parameters/docker/build/disable-content-trust,/vela/secrets/docker/build/disable-content-trust"),
 		Name:     "push.disable-content-trust",
 		Usage:    "enables skipping image verification (default true)",
-		Value:    true,
 	},
 }
 
@@ -46,6 +47,9 @@ func (p *Push) Command() (*exec.Cmd, error) {
 		// add flag for DisableContentTrust from provided build command
 		flags = append(flags, "--disable-content-trust")
 	}
+
+	// add tag to command
+	flags = append(flags, p.Tag)
 
 	// nolint // this functionality is not exploitable the way
 	// the plugin accepts configuration

@@ -5,6 +5,8 @@
 package main
 
 import (
+	"encoding/json"
+
 	"github.com/sirupsen/logrus"
 )
 
@@ -24,14 +26,14 @@ type Plugin struct {
 func (p *Plugin) Exec() error {
 	logrus.Debug("running plugin with provided configuration")
 
-	// output docker version for troubleshooting
-	err := execCmd(versionCmd())
+	// start the docker daemon with configuration
+	err := p.Daemon.Exec()
 	if err != nil {
 		return err
 	}
 
-	// start the docker daemon with configuration
-	err = p.Daemon.Exec()
+	// output docker version for troubleshooting
+	err = execCmd(versionCmd())
 	if err != nil {
 		return err
 	}
@@ -50,10 +52,18 @@ func (p *Plugin) Exec() error {
 
 	// check if registry dry run is enabled
 	if !p.Registry.DryRun {
-		// execute push configuration
-		err = p.Push.Exec()
-		if err != nil {
-			return err
+
+		// push all tags
+		for _, t := range p.Build.Tags {
+
+			// set the tag to be pushed
+			p.Push.Tag = t
+
+			// execute push configuration
+			err = p.Push.Exec()
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -61,8 +71,16 @@ func (p *Plugin) Exec() error {
 }
 
 // Validate verifies the Plugin is properly configured.
-func (p *Plugin) Validate() error {
+func (p *Plugin) Validate(daemon string) error {
 	logrus.Debug("validating plugin configuration")
+
+	// serialize daemon settings into plugin
+	if len(daemon) > 0 {
+		err := json.Unmarshal([]byte(daemon), &p.Daemon)
+		if err != nil {
+			return err
+		}
+	}
 
 	// validate registry configuration
 	err := p.Registry.Validate()

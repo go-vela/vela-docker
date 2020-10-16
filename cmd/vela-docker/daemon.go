@@ -5,8 +5,10 @@
 package main
 
 import (
+	"io/ioutil"
 	"os/exec"
 	"strconv"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
@@ -18,8 +20,6 @@ type (
 	Daemon struct {
 		// enables specifying a network bridge IP
 		Bip string
-		// enables a root directory of persistent Docker state (default "/var/lib/docker")
-		DataRoot string
 		// used for translating the storage configuration
 		DNS *DNS
 		// enables setting custom storage options
@@ -58,12 +58,11 @@ type (
 // daemonFlags represents for daemon settings on the cli.
 // nolint // ignoring line length on file paths on comments
 var daemonFlags = []cli.Flag{
-	&cli.BoolFlag{
+	&cli.StringFlag{
 		EnvVars:  []string{"PARAMETER_DAEMON"},
 		FilePath: string("/vela/parameters/docker/build/daemon,/vela/secrets/docker/build/daemon"),
 		Name:     "daemon",
 		Usage:    "enables specifying a network bridge IP",
-		Value:    true,
 	},
 }
 
@@ -74,18 +73,12 @@ func (d *Daemon) Command() (*exec.Cmd, error) {
 	logrus.Trace("creating dockerd command from plugin configuration")
 
 	// variable to store flags for command
-	flags := []string{"--host=unix:///var/run/docker.sock"}
+	flags := []string{"--data-root=/var/lib/docker", "--host=unix:///var/run/docker.sock"}
 
 	// check if Bip is provided
 	if len(d.Bip) > 0 {
 		// add flag for Bip from provided build command
-		flags = append(flags, "--bip", strconv.Quote(d.Bip))
-	}
-
-	// check if DataRoot is provided
-	if len(d.DataRoot) > 0 {
-		// add flag for DataRoot from provided build command
-		flags = append(flags, "--data-root", strconv.Quote(d.DataRoot))
+		flags = append(flags, "--bip", d.Bip)
 	}
 
 	// add flags for DNS configuration
@@ -101,7 +94,7 @@ func (d *Daemon) Command() (*exec.Cmd, error) {
 	if len(d.InsecureRegistries) > 0 {
 		for _, i := range d.InsecureRegistries {
 			// add flag for InsecureRegistries from provided build command
-			flags = append(flags, "--insecure-registry", strconv.Quote(i))
+			flags = append(flags, "--insecure-registry", i)
 		}
 	}
 
@@ -114,14 +107,14 @@ func (d *Daemon) Command() (*exec.Cmd, error) {
 	// check if MTU is provided
 	if d.MTU > 0 {
 		// add flag for MTU from provided build command
-		flags = append(flags, "--mtu", strconv.Quote(strconv.Itoa(d.MTU)))
+		flags = append(flags, "--mtu", strconv.Itoa(d.MTU))
 	}
 
 	// check if RegistryMirrors is provided
 	if len(d.RegistryMirrors) > 0 {
 		for _, r := range d.RegistryMirrors {
 			// add flag for RegistryMirrors from provided build command
-			flags = append(flags, "--registry-mirror", strconv.Quote(r))
+			flags = append(flags, "--registry-mirror", r)
 		}
 	}
 
@@ -143,10 +136,32 @@ func (d *Daemon) Exec() error {
 		return err
 	}
 
-	// run the push command for the file
-	err = execCmd(cmd)
-	if err != nil {
-		return err
+	// start the daemon in a thread
+	go func() {
+		// turn off daemon logs
+		// TODO make this configurable
+		cmd.Stdout = ioutil.Discard
+		cmd.Stderr = ioutil.Discard
+
+		err := execCmd(cmd)
+		if err != nil {
+			logrus.Error(err)
+		}
+	}()
+
+	// poll the docker daemon to ensures the daemon is
+	// ready to accept connections.
+	retryLimit := 5
+
+	// iterate through with a retryLimit
+	for i := 0; i < retryLimit; i++ {
+		err := execCmd(versionCmd())
+		if err == nil {
+			break
+		}
+
+		// sleep in between retries
+		time.Sleep(time.Duration(i) * time.Second)
 	}
 
 	return nil
@@ -158,19 +173,22 @@ func (d *DNS) Flags() []string {
 	// variable to store flags for command
 	var flags []string
 
-	// check if Servers is provided
-	if len(d.Servers) > 0 {
-		for _, d := range d.Servers {
-			// add flag for DNS from provided build command
-			flags = append(flags, "--dns", strconv.Quote(d))
+	// check if any dns flags are set
+	if d != nil {
+		// check if Servers is provided
+		if d.Servers != nil {
+			for _, d := range d.Servers {
+				// add flag for DNS from provided build command
+				flags = append(flags, "--dns", d)
+			}
 		}
-	}
 
-	// check if Searches is provided
-	if len(d.Searches) > 0 {
-		for _, s := range d.Searches {
-			// add flag for DNS from provided build command
-			flags = append(flags, "--dns-search", strconv.Quote(s))
+		// check if Searches is provided
+		if len(d.Searches) > 0 {
+			for _, s := range d.Searches {
+				// add flag for DNS from provided build command
+				flags = append(flags, "--dns-search", s)
+			}
 		}
 	}
 
@@ -183,17 +201,20 @@ func (s *Storage) Flags() []string {
 	// variable to store flags for command
 	var flags []string
 
-	// check if Driver is provided
-	if len(s.Driver) > 0 {
-		// add flag for Driver from provided build command
-		flags = append(flags, "--storage-driver", strconv.Quote(s.Driver))
-	}
+	// check if any storage flags are set
+	if s != nil {
+		// check if Driver is provided
+		if len(s.Driver) > 0 {
+			// add flag for Driver from provided build command
+			flags = append(flags, "--storage-driver", s.Driver)
+		}
 
-	// check if DNSSearch is provided
-	if len(s.Opts) > 0 {
-		for _, o := range s.Opts {
-			// add flag for DNS from provided build command
-			flags = append(flags, "--storage-opt", strconv.Quote(o))
+		// check if DNSSearch is provided
+		if len(s.Opts) > 0 {
+			for _, o := range s.Opts {
+				// add flag for DNS from provided build command
+				flags = append(flags, "--storage-opt", o)
+			}
 		}
 	}
 
