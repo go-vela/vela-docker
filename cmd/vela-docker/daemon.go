@@ -41,7 +41,7 @@ type (
 		StorageRaw string
 	}
 
-	// DNS represnets the "dns" prefixed flags within the "dockerd" command.
+	// DNS represents the "dns" prefixed flags within the "dockerd" command.
 	DNS struct {
 		// enables setting the DNS server to use
 		Servers []string
@@ -49,7 +49,7 @@ type (
 		Searches []string
 	}
 
-	// Storage represnets the "storage" prefixed flags within the "dockerd" command.
+	// Storage represents the "storage" prefixed flags within the "dockerd" command.
 	Storage struct {
 		Driver string
 		Opts   []string

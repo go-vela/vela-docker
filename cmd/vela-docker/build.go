@@ -33,7 +33,7 @@ type (
 		Compress bool
 		// enables setting the build context
 		Context string
-		// Used for translating the cpu configuration
+		// used for translating the cpu configuration
 		CPU *CPU
 		// enables setting custom cpu options
 		CPURaw string
@@ -47,6 +47,8 @@ type (
 		ImageIDFile string
 		// enables container isolation technology
 		Isolation string
+		// used for translating the pre-defined image labels
+		Label *Label
 		// enables setting metadata for an image
 		Labels []string
 		// enables setting a memory limit
@@ -89,7 +91,7 @@ type (
 		Ulimits []string
 	}
 
-	// CPU represnets the "cpu" prefixed flags within the "docker build" command.
+	// CPU represents the "cpu" prefixed flags within the "docker build" command.
 	CPU struct {
 		// enables setting limits on the CPU CFS (Completely Fair Scheduler) period
 		Period int
@@ -101,6 +103,22 @@ type (
 		SetCpus string `json:"set_cpus"`
 		// enables setting MEMs in which to allow execution (0-3, 0,1)
 		SetMems string `json:"set_mems"`
+	}
+
+	// Label represents the open image specification fields.
+	Label struct {
+		// author from the source commit
+		AuthorEmail string
+		// commit sha from the source commit
+		Commit string
+		// timestamp when the image was built
+		Created string
+		// full name of the repository
+		FullName string
+		// build number from vela
+		Number int
+		// direct url of the repository
+		URL string
 	}
 )
 
@@ -301,6 +319,33 @@ var buildFlags = []cli.Flag{
 		FilePath: string("/vela/parameters/docker/build/ulimits,/vela/secrets/docker/build/ulimits"),
 		Name:     "build.ulimits",
 		Usage:    "enables setting ulimit options (default [])",
+	},
+
+	// extract vars for open image specification labeling
+	&cli.StringFlag{
+		EnvVars: []string{"VELA_BUILD_AUTHOR_EMAIL"},
+		Name:    "label.author-email",
+		Usage:   "author from the source commit",
+	},
+	&cli.StringFlag{
+		EnvVars: []string{"VELA_BUILD_COMMIT"},
+		Name:    "label.commit",
+		Usage:   "commit sha from the source commit",
+	},
+	&cli.IntFlag{
+		EnvVars: []string{"VELA_BUILD_NUMBER"},
+		Name:    "label.number",
+		Usage:   "build number",
+	},
+	&cli.IntFlag{
+		EnvVars: []string{"VELA_REPO_FULL_NAME"},
+		Name:    "label.full-name",
+		Usage:   "full name of the repository",
+	},
+	&cli.StringFlag{
+		EnvVars: []string{"VELA_REPO_LINK"},
+		Name:    "label.url",
+		Usage:   "direct url of the repository",
 	},
 }
 
@@ -556,6 +601,9 @@ func (b *Build) Command() (*exec.Cmd, error) {
 func (b *Build) Exec() error {
 	logrus.Trace("running build with provided configuration")
 
+	// add standardized image labels
+	b.Labels = append(b.Labels, b.AddLabels()...)
+
 	// create the build command for the file
 	cmd, err := b.Command()
 	if err != nil {
@@ -569,6 +617,22 @@ func (b *Build) Exec() error {
 	}
 
 	return nil
+}
+
+// AddLabels adds open container spec labels to plugin
+//
+// https://github.com/opencontainers/image-spec/blob/v1.0.1/annotations.md
+func (b *Build) AddLabels() []string {
+	return []string{
+		fmt.Sprintf("org.opencontainers.image.created=%s", b.Label.Created),
+		fmt.Sprintf("org.opencontainers.image.url=%s", b.Label.URL),
+		fmt.Sprintf("org.opencontainers.image.revision=%s", b.Label.Commit),
+		fmt.Sprintf("io.vela.build-author=%s", b.Label.AuthorEmail),
+		fmt.Sprintf("io.vela.build-number=%d", b.Label.Number),
+		fmt.Sprintf("io.vela.build-repo=%s", b.Label.FullName),
+		fmt.Sprintf("io.vela.build-commit=%s", b.Label.Commit),
+		fmt.Sprintf("io.vela.build-url=%s", b.Label.URL),
+	}
 }
 
 // Unmarshal captures the provided properties and

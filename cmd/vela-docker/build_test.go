@@ -33,7 +33,7 @@ func TestDocker_Build_Command(t *testing.T) {
 		ForceRM:             true,
 		ImageIDFile:         "path/to/file",
 		Isolation:           "hyperv",
-		Labels:              []string{"build.number=1"},
+		Labels:              []string{"build.number=1", "build.author=octocat"},
 		Memory:              []string{"1"},
 		MemorySwaps:         []string{"1"},
 		Network:             "default",
