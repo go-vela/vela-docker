@@ -5,9 +5,8 @@
 package main
 
 import (
-	"fmt"
 	"os/exec"
-	"strings"
+	"strconv"
 
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
@@ -80,13 +79,13 @@ func (d *Daemon) Command() (*exec.Cmd, error) {
 	// check if Bip is provided
 	if len(d.Bip) > 0 {
 		// add flag for Bip from provided build command
-		flags = append(flags, fmt.Sprintf("--bip=%s", d.Bip))
+		flags = append(flags, "--bip", strconv.Quote(d.Bip))
 	}
 
 	// check if DataRoot is provided
 	if len(d.DataRoot) > 0 {
 		// add flag for DataRoot from provided build command
-		flags = append(flags, fmt.Sprintf("--data-root=%s", d.DataRoot))
+		flags = append(flags, "--data-root", strconv.Quote(d.DataRoot))
 	}
 
 	// add flags for DNS configuration
@@ -100,12 +99,10 @@ func (d *Daemon) Command() (*exec.Cmd, error) {
 
 	// check if InsecureRegistries is provided
 	if len(d.InsecureRegistries) > 0 {
-		var args string
-		for _, arg := range d.InsecureRegistries {
-			args += fmt.Sprintf(" %s", arg)
+		for _, i := range d.InsecureRegistries {
+			// add flag for InsecureRegistries from provided build command
+			flags = append(flags, "--insecure-registry", strconv.Quote(i))
 		}
-		// add flag for InsecureRegistries from provided build command
-		flags = append(flags, fmt.Sprintf("--insecure-registry=%s", strings.TrimPrefix(args, " ")))
 	}
 
 	// check if Experimental is provided
@@ -117,17 +114,15 @@ func (d *Daemon) Command() (*exec.Cmd, error) {
 	// check if MTU is provided
 	if d.MTU > 0 {
 		// add flag for MTU from provided build command
-		flags = append(flags, fmt.Sprintf("--mtu=%d", d.MTU))
+		flags = append(flags, "--mtu", strconv.Quote(strconv.Itoa(d.MTU)))
 	}
 
 	// check if RegistryMirrors is provided
 	if len(d.RegistryMirrors) > 0 {
-		var args string
-		for _, arg := range d.RegistryMirrors {
-			args += fmt.Sprintf(" %s", arg)
+		for _, r := range d.RegistryMirrors {
+			// add flag for RegistryMirrors from provided build command
+			flags = append(flags, "--registry-mirror", strconv.Quote(r))
 		}
-		// add flag for RegistryMirrors from provided build command
-		flags = append(flags, fmt.Sprintf("--registry-mirror=%s", strings.TrimPrefix(args, " ")))
 	}
 
 	// add flags for Storage configuration
@@ -165,22 +160,18 @@ func (d *DNS) Flags() []string {
 
 	// check if Servers is provided
 	if len(d.Servers) > 0 {
-		var args string
-		for _, arg := range d.Servers {
-			args += fmt.Sprintf("--dns=%s ", strings.TrimPrefix(arg, " "))
+		for _, d := range d.Servers {
+			// add flag for DNS from provided build command
+			flags = append(flags, "--dns", strconv.Quote(d))
 		}
-		// add flag for DNS from provided build command
-		flags = append(flags, args)
 	}
 
 	// check if Searches is provided
 	if len(d.Searches) > 0 {
-		var args string
-		for _, arg := range d.Searches {
-			args += fmt.Sprintf(" %s", arg)
+		for _, s := range d.Searches {
+			// add flag for DNS from provided build command
+			flags = append(flags, "--dns-search", strconv.Quote(s))
 		}
-		// add flag for DNS from provided build command
-		flags = append(flags, fmt.Sprintf("--dns-search=%s", strings.TrimPrefix(args, " ")))
 	}
 
 	return flags
@@ -195,17 +186,15 @@ func (s *Storage) Flags() []string {
 	// check if Driver is provided
 	if len(s.Driver) > 0 {
 		// add flag for Driver from provided build command
-		flags = append(flags, fmt.Sprintf("--storage-driver=%s", s.Driver))
+		flags = append(flags, "--storage-driver", strconv.Quote(s.Driver))
 	}
 
 	// check if DNSSearch is provided
 	if len(s.Opts) > 0 {
-		var args string
-		for _, arg := range s.Opts {
-			args += fmt.Sprintf(" %s", arg)
+		for _, o := range s.Opts {
+			// add flag for DNS from provided build command
+			flags = append(flags, "--storage-opt", strconv.Quote(o))
 		}
-		// add flag for DNS from provided build command
-		flags = append(flags, fmt.Sprintf("--storage-opt=%s", strings.TrimPrefix(args, " ")))
 	}
 
 	return flags

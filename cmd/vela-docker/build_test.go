@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os/exec"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -38,13 +39,13 @@ func TestDocker_Build_Command(t *testing.T) {
 		MemorySwaps:         []string{"1"},
 		Network:             "default",
 		NoCache:             true,
-		Outputs:             []string{"type=local,dest=path"},
+		Outputs:             []string{"foo"},
 		Platform:            "linux",
 		Progress:            "plain",
 		Pull:                true,
 		Quiet:               true,
 		Remove:              true,
-		Secrets:             []string{"id=mysecret,src=/local/secret"},
+		Secrets:             []string{"foo"},
 		SecurityOpts:        []string{"seccomp"},
 		ShmSizes:            []string{"1"},
 		Squash:              true,
@@ -60,46 +61,46 @@ func TestDocker_Build_Command(t *testing.T) {
 	want := exec.Command(
 		_docker,
 		buildAction,
-		fmt.Sprintf("--add-host=%s", b.AddHosts[0]),
-		fmt.Sprintf("--build-arg=%s", b.BuildArgs[0]),
-		fmt.Sprintf("--cache-from=%s", b.CacheFrom),
-		fmt.Sprintf("--cgroup-parent=%s", b.CGroupParent),
+		fmt.Sprintf("--add-host \"%s\"", b.AddHosts[0]),
+		fmt.Sprintf("--build-arg \"%s\"", b.BuildArgs[0]),
+		fmt.Sprintf("--cache-from \"%s\"", b.CacheFrom),
+		fmt.Sprintf("--cgroup-parent \"%s\"", b.CGroupParent),
 		"--compress",
-		fmt.Sprintf("--cpu-period=%d", b.CPU.Period),
-		fmt.Sprintf("--cpu-quota=%d", b.CPU.Quota),
-		fmt.Sprintf("--cpu-shares=%d", b.CPU.Shares),
-		fmt.Sprintf("--cpuset-cpus=%s", b.CPU.SetCpus),
-		fmt.Sprintf("--cpuset-mems=%s", b.CPU.SetMems),
+		fmt.Sprintf("--cpu-period \"%d\"", b.CPU.Period),
+		fmt.Sprintf("--cpu-quota \"%d\"", b.CPU.Quota),
+		fmt.Sprintf("--cpu-shares \"%d\"", b.CPU.Shares),
+		fmt.Sprintf("--cpuset-cpus \"%s\"", b.CPU.SetCpus),
+		fmt.Sprintf("--cpuset-mems \"%s\"", b.CPU.SetMems),
 		"--disable-content-trust",
-		fmt.Sprintf("--file=%s", b.File),
+		fmt.Sprintf("--file \"%s\"", b.File),
 		"--force-rm",
-		fmt.Sprintf("--iidfile=%s", b.ImageIDFile),
-		fmt.Sprintf("--isolation=%s", b.Isolation),
-		fmt.Sprintf("--label=%s", b.Labels[0]),
-		fmt.Sprintf("--memory=%s", b.Memory[0]),
-		fmt.Sprintf("--memory-swap=%s", b.MemorySwaps[0]),
-		fmt.Sprintf("--network=%s", b.Network),
+		fmt.Sprintf("--iidfile \"%s\"", b.ImageIDFile),
+		fmt.Sprintf("--isolation \"%s\"", b.Isolation),
+		fmt.Sprintf("--label \"%s\" --label \"%s\"", b.Labels[0], b.Labels[1]),
+		fmt.Sprintf("--memory \"%s\"", b.Memory[0]),
+		fmt.Sprintf("--memory-swap \"%s\"", b.MemorySwaps[0]),
+		fmt.Sprintf("--network \"%s\"", b.Network),
 		"--no-cache",
-		fmt.Sprintf("--output=%s", b.Outputs[0]),
-		fmt.Sprintf("--platform=%s", b.Platform),
-		fmt.Sprintf("--progress=%s", b.Progress),
+		fmt.Sprintf("--output \"%s\"", b.Outputs[0]),
+		fmt.Sprintf("--platform \"%s\"", b.Platform),
+		fmt.Sprintf("--progress \"%s\"", b.Progress),
 		"--pull",
 		"--quiet",
 		"--rm",
-		fmt.Sprintf("--secret=%s", b.Secrets[0]),
-		fmt.Sprintf("--security-opt=%s", b.SecurityOpts[0]),
-		fmt.Sprintf("--shm-size=%s", b.ShmSizes[0]),
+		fmt.Sprintf("--secret \"%s\"", b.Secrets[0]),
+		fmt.Sprintf("--security-opt \"%s\"", b.SecurityOpts[0]),
+		fmt.Sprintf("--shm-size \"%s\"", b.ShmSizes[0]),
 		"--squash",
-		fmt.Sprintf("--ssh=%s", b.SshComponents[0]),
+		fmt.Sprintf("--ssh \"%s\"", b.SshComponents[0]),
 		"--stream",
-		fmt.Sprintf("--tag=%s", b.Tags[0]),
-		fmt.Sprintf("--target=%s", b.Target),
-		fmt.Sprintf("--ulimit=%s", b.Ulimits[0]),
+		fmt.Sprintf("--tag \"%s\"", b.Tags[0]),
+		fmt.Sprintf("--target \"%s\"", b.Target),
+		fmt.Sprintf("--ulimit \"%s\"", b.Ulimits[0]),
 		".",
 	)
 
 	got, _ := b.Command()
-	if !reflect.DeepEqual(got, want) {
+	if !strings.EqualFold(got.String(), want.String()) {
 		t.Errorf("Command is %v, want %v", got, want)
 	}
 }
@@ -107,7 +108,8 @@ func TestDocker_Build_Command(t *testing.T) {
 func TestDocker_Build_Exec_Error(t *testing.T) {
 	// setup types
 	b := &Build{
-		CPU: &CPU{},
+		CPU:   &CPU{},
+		Label: &Label{},
 	}
 
 	err := b.Exec()

@@ -6,7 +6,7 @@ package main
 
 import (
 	"os/exec"
-	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -19,13 +19,12 @@ func TestDocker_Push_Command(t *testing.T) {
 
 	want := exec.Command(
 		_docker,
-		buildAction,
+		pushAction,
 		"--disable-content-trust",
-		".",
 	)
 
 	got, _ := p.Command()
-	if !reflect.DeepEqual(got, want) {
+	if !strings.EqualFold(got.String(), want.String()) {
 		t.Errorf("Command is %v, want %v", got, want)
 	}
 }

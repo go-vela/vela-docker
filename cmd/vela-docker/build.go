@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os/exec"
+	"strconv"
 	"strings"
 
 	"github.com/sirupsen/logrus"
@@ -360,34 +361,30 @@ func (b *Build) Command() (*exec.Cmd, error) {
 
 	// check if AddHosts is provided
 	if len(b.AddHosts) > 0 {
-		var args string
-		for _, arg := range b.AddHosts {
-			args += fmt.Sprintf(" %s", arg)
+		for _, a := range b.AddHosts {
+			// add flag for AddHosts from provided build command
+			flags = append(flags, "--add-host", strconv.Quote(a))
 		}
-		// add flag for AddHosts from provided build command
-		flags = append(flags, fmt.Sprintf("--add-host=%s", strings.TrimPrefix(args, " ")))
 	}
 
 	// check if BuildArgs is provided
 	if len(b.BuildArgs) > 0 {
-		var args string
-		for _, arg := range b.BuildArgs {
-			args += fmt.Sprintf(" %s", arg)
+		for _, b := range b.BuildArgs {
+			// add flag for BuildArgs from provided build command
+			flags = append(flags, "--build-arg", strconv.Quote(b))
 		}
-		// add flag for BuildArgs from provided build command
-		flags = append(flags, fmt.Sprintf("--build-arg=%s", strings.TrimPrefix(args, " ")))
 	}
 
 	// check if CacheFrom is provided
 	if len(b.CacheFrom) > 0 {
 		// add flag for CacheFrom from provided build command
-		flags = append(flags, fmt.Sprintf("--cache-from=%s", b.CacheFrom))
+		flags = append(flags, fmt.Sprintf("--cache-from %s", strconv.Quote(b.CacheFrom)))
 	}
 
 	// check if CGroupParent is provided
 	if len(b.CGroupParent) > 0 {
 		// add flag for CGroupParent from provided build command
-		flags = append(flags, fmt.Sprintf("--cgroup-parent=%s", b.CGroupParent))
+		flags = append(flags, fmt.Sprintf("--cgroup-parent %s", strconv.Quote(b.CGroupParent)))
 	}
 
 	// check if Compress is provided
@@ -408,7 +405,7 @@ func (b *Build) Command() (*exec.Cmd, error) {
 	// check if File is provided
 	if len(b.File) > 0 {
 		// add flag for File from provided build command
-		flags = append(flags, fmt.Sprintf("--file=%s", b.File))
+		flags = append(flags, fmt.Sprintf("--file %s", strconv.Quote(b.File)))
 	}
 
 	// check if ForceRM is provided
@@ -420,49 +417,43 @@ func (b *Build) Command() (*exec.Cmd, error) {
 	// check if ImageIDFile is provided
 	if len(b.ImageIDFile) > 0 {
 		// add flag for ImageIDFile from provided build command
-		flags = append(flags, fmt.Sprintf("--iidfile=%s", b.ImageIDFile))
+		flags = append(flags, fmt.Sprintf("--iidfile %s", strconv.Quote(b.ImageIDFile)))
 	}
 
 	// check if Isolation is provided
 	if len(b.Isolation) > 0 {
 		// add flag for Isolation from provided build command
-		flags = append(flags, fmt.Sprintf("--isolation=%s", b.Isolation))
+		flags = append(flags, fmt.Sprintf("--isolation %s", strconv.Quote(b.Isolation)))
 	}
 
 	// check if Labels is provided
 	if len(b.Labels) > 0 {
-		var args string
-		for _, arg := range b.Labels {
-			args += fmt.Sprintf(" %s", arg)
+		for _, l := range b.Labels {
+			// add flag for Labels from provided build command
+			flags = append(flags, "--label", strconv.Quote(l))
 		}
-		// add flag for Labels from provided build command
-		flags = append(flags, fmt.Sprintf("--label=%s", strings.TrimPrefix(args, " ")))
 	}
 
 	// check if Memory is provided
 	if len(b.Memory) > 0 {
-		var args string
-		for _, arg := range b.Memory {
-			args += fmt.Sprintf(" %s", arg)
+		for _, m := range b.Memory {
+			// add flag for Memories from provided build command
+			flags = append(flags, "--memory", strconv.Quote(m))
 		}
-		// add flag for Memories from provided build command
-		flags = append(flags, fmt.Sprintf("--memory=%s", strings.TrimPrefix(args, " ")))
 	}
 
 	// check if MemorySwaps is provided
 	if len(b.MemorySwaps) > 0 {
-		var args string
-		for _, arg := range b.MemorySwaps {
-			args += fmt.Sprintf(" %s", arg)
+		for _, m := range b.MemorySwaps {
+			// add flag for Memories from provided build command
+			flags = append(flags, "--memory-swap", strconv.Quote(m))
 		}
-		// add flag for MemorySwaps from provided build command
-		flags = append(flags, fmt.Sprintf("--memory-swap=%s", strings.TrimPrefix(args, " ")))
 	}
 
 	// check if Network is provided
 	if len(b.Network) > 0 {
 		// add flag for Network from provided build command
-		flags = append(flags, fmt.Sprintf("--network=%s", b.Network))
+		flags = append(flags, fmt.Sprintf("--network %s", strconv.Quote(b.Network)))
 	}
 
 	// check if NoCache is provided
@@ -473,24 +464,22 @@ func (b *Build) Command() (*exec.Cmd, error) {
 
 	// check if Outputs is provided
 	if len(b.Outputs) > 0 {
-		var args string
-		for _, arg := range b.Outputs {
-			args += fmt.Sprintf(" %s", arg)
+		for _, o := range b.Outputs {
+			// add flag for Outputs from provided build command
+			flags = append(flags, "--output", strconv.Quote(o))
 		}
-		// add flag for Outputs from provided build command
-		flags = append(flags, fmt.Sprintf("--output=%s", strings.TrimPrefix(args, " ")))
 	}
 
 	// check if Platform is provided
 	if len(b.Platform) > 0 {
 		// add flag for Platform from provided build command
-		flags = append(flags, fmt.Sprintf("--platform=%s", b.Platform))
+		flags = append(flags, fmt.Sprintf("--platform %s", strconv.Quote(b.Platform)))
 	}
 
 	// check if Progress is provided
 	if len(b.Progress) > 0 {
 		// add flag for Progress from provided build command
-		flags = append(flags, fmt.Sprintf("--progress=%s", b.Progress))
+		flags = append(flags, fmt.Sprintf("--progress %s", strconv.Quote(b.Progress)))
 	}
 
 	// check if Pull is provided
@@ -513,32 +502,26 @@ func (b *Build) Command() (*exec.Cmd, error) {
 
 	// check if Secrets is provided
 	if len(b.Secrets) > 0 {
-		var args string
-		for _, arg := range b.Secrets {
-			args += fmt.Sprintf(" %s", arg)
+		for _, s := range b.Secrets {
+			// add flag for Secrets from provided build command
+			flags = append(flags, "--secret", strconv.Quote(s))
 		}
-		// add flag for Secrets from provided build command
-		flags = append(flags, fmt.Sprintf("--secret=%s", strings.TrimPrefix(args, " ")))
 	}
 
 	// check if SecurityOpts is provided
 	if len(b.SecurityOpts) > 0 {
-		var args string
-		for _, arg := range b.SecurityOpts {
-			args += fmt.Sprintf(" %s", arg)
+		for _, s := range b.SecurityOpts {
+			// add flag for SecurityOpts from provided build command
+			flags = append(flags, "--security-opt", strconv.Quote(s))
 		}
-		// add flag for SecurityOpts from provided build command
-		flags = append(flags, fmt.Sprintf("--security-opt=%s", strings.TrimPrefix(args, " ")))
 	}
 
 	// check if ShmSizes is provided
 	if len(b.ShmSizes) > 0 {
-		var args string
-		for _, arg := range b.ShmSizes {
-			args += fmt.Sprintf(" %s", arg)
+		for _, s := range b.ShmSizes {
+			// add flag for ShmSizes from provided build command
+			flags = append(flags, "--shm-size", strconv.Quote(s))
 		}
-		// add flag for ShmSizes from provided build command
-		flags = append(flags, fmt.Sprintf("--shm-size=%s", strings.TrimPrefix(args, " ")))
 	}
 
 	// check if Squash is provided
@@ -549,12 +532,10 @@ func (b *Build) Command() (*exec.Cmd, error) {
 
 	// check if SshComponents is provided
 	if len(b.SshComponents) > 0 {
-		var args string
-		for _, arg := range b.SshComponents {
-			args += fmt.Sprintf(" %s", arg)
+		for _, s := range b.SshComponents {
+			// add flag for SshComponents from provided build command
+			flags = append(flags, "--ssh", strconv.Quote(s))
 		}
-		// add flag for SshComponents from provided build command
-		flags = append(flags, fmt.Sprintf("--ssh=%s", strings.TrimPrefix(args, " ")))
 	}
 
 	// check if Stream is provided
@@ -565,28 +546,24 @@ func (b *Build) Command() (*exec.Cmd, error) {
 
 	// check if Tags is provided
 	if len(b.Tags) > 0 {
-		var args string
-		for _, arg := range b.Tags {
-			args += fmt.Sprintf(" %s", arg)
+		for _, t := range b.Tags {
+			// add flag for Tags from provided build command
+			flags = append(flags, "--tag", strconv.Quote(t))
 		}
-		// add flag for Tags from provided build command
-		flags = append(flags, fmt.Sprintf("--tag=%s", strings.TrimPrefix(args, " ")))
 	}
 
 	// check if Target is provided
 	if len(b.Target) > 0 {
 		// add flag for Target from provided build command
-		flags = append(flags, fmt.Sprintf("--target=%s", b.Target))
+		flags = append(flags, fmt.Sprintf("--target %s", strconv.Quote(b.Target)))
 	}
 
 	// check if Ulimits is provided
 	if len(b.Ulimits) > 0 {
-		var args string
-		for _, arg := range b.Ulimits {
-			args += fmt.Sprintf(" %s", arg)
+		for _, u := range b.Ulimits {
+			// add flag for Ulimits from provided build command
+			flags = append(flags, "--ulimit", strconv.Quote(u))
 		}
-		// add flag for Ulimits from provided build command
-		flags = append(flags, fmt.Sprintf("--ulimit=%s", strings.TrimPrefix(args, " ")))
 	}
 
 	// add the required directory param
@@ -686,31 +663,31 @@ func (c *CPU) Flags() []string {
 	// check if Period is provided
 	if c.Period > 0 {
 		// add flag for Period from provided build command
-		flags = append(flags, fmt.Sprintf("--cpu-period=%d", c.Period))
+		flags = append(flags, fmt.Sprintf("--cpu-period %s", strconv.Quote(strconv.Itoa(c.Period))))
 	}
 
 	// check if Quota is provided
 	if c.Quota > 0 {
 		// add flag for Quota from provided build command
-		flags = append(flags, fmt.Sprintf("--cpu-quota=%d", c.Quota))
+		flags = append(flags, fmt.Sprintf("--cpu-quota %s", strconv.Quote(strconv.Itoa(c.Quota))))
 	}
 
 	// check if Shares is provided
 	if c.Shares > 0 {
 		// add flag for Shares from provided build command
-		flags = append(flags, fmt.Sprintf("--cpu-shares=%d", c.Shares))
+		flags = append(flags, fmt.Sprintf("--cpu-shares %s", strconv.Quote(strconv.Itoa(c.Shares))))
 	}
 
 	// check if SetCpus is provided
 	if len(c.SetCpus) > 0 {
 		// add flag for SetCpus from provided build command
-		flags = append(flags, fmt.Sprintf("--cpuset-cpus=%s", c.SetCpus))
+		flags = append(flags, fmt.Sprintf("--cpuset-cpus %s", strconv.Quote(c.SetCpus)))
 	}
 
 	// check if SetMems is provided
 	if len(c.SetMems) > 0 {
 		// add flag for SetMems from provided build command
-		flags = append(flags, fmt.Sprintf("--cpuset-mems=%s", c.SetMems))
+		flags = append(flags, fmt.Sprintf("--cpuset-mems %s", strconv.Quote(c.SetMems)))
 	}
 
 	return flags
