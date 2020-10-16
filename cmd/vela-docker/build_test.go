@@ -10,8 +10,6 @@ import (
 	"reflect"
 	"strings"
 	"testing"
-
-	"github.com/google/go-cmp/cmp"
 )
 
 func TestDocker_Build_Command(t *testing.T) {
@@ -103,9 +101,6 @@ func TestDocker_Build_Command(t *testing.T) {
 
 	got, _ := b.Command()
 	if !strings.EqualFold(got.String(), want.String()) {
-		if diff := cmp.Diff(want.String(), got.String()); diff != "" {
-			t.Errorf("MakeGatewayInfo() mismatch (-want +got):\n%s", diff)
-		}
 		t.Errorf("Command is %v, want %v", got, want)
 	}
 }

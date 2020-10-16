@@ -53,16 +53,3 @@ func TestDocker_Daemon_Command(t *testing.T) {
 		t.Errorf("Command is %v, want %v", got, want)
 	}
 }
-
-func TestDocker_Daemon_Exec_Error(t *testing.T) {
-	// setup types
-	d := &Daemon{
-		DNS:     &DNS{},
-		Storage: &Storage{},
-	}
-
-	err := d.Exec()
-	if err == nil {
-		t.Errorf("Exec should have returned err")
-	}
-}

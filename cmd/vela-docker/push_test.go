@@ -20,7 +20,7 @@ func TestDocker_Push_Command(t *testing.T) {
 	want := exec.Command(
 		_docker,
 		pushAction,
-		"--disable-content-trust",
+		"--disable-content-trust ",
 	)
 
 	got, _ := p.Command()
