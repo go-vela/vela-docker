@@ -7,7 +7,11 @@ package main
 import (
 	"encoding/base64"
 	"fmt"
+	"os"
+	"os/exec"
+	"strings"
 
+	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 	"github.com/urfave/cli/v2"
@@ -23,6 +27,9 @@ const (
     }
   }
 }`
+
+	// nolint
+	loginAction = "login"
 )
 
 // Registry represents the input parameters for the plugin.
@@ -97,6 +104,37 @@ func (r *Registry) Write() error {
 	)
 
 	return a.WriteFile(configPath, []byte(out), 0644)
+}
+
+// Login creates logs in to the registry.
+func (r *Registry) Login() error {
+	logrus.Trace("creating registry configuration file")
+
+	// variable to store flags for command
+	var flags []string
+
+	// add flag for registry password
+	flags = append(flags, "--password", r.Password)
+
+	// add flag for registry password
+	flags = append(flags, "--username", r.Username)
+
+	// add flag for registry name
+	flags = append(flags, r.Name)
+
+	// nolint
+	e := exec.Command(_docker, append([]string{loginAction}, flags...)...)
+
+	// set command stdout to OS stdout
+	e.Stdout = os.Stdout
+	// set command stderr to OS stderr
+	e.Stderr = os.Stderr
+
+	cmd := strings.ReplaceAll(strings.Join(e.Args, " "), r.Password, constants.SecretMask)
+
+	fmt.Println("$", cmd)
+
+	return e.Run()
 }
 
 // Validate verifies the registry is properly configured.

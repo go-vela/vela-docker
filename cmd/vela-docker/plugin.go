@@ -38,6 +38,12 @@ func (p *Plugin) Exec() error {
 		return err
 	}
 
+	// create registry login to validate authentication
+	err = p.Registry.Login()
+	if err != nil {
+		return err
+	}
+
 	// execute build configuration
 	err = p.Build.Exec()
 	if err != nil {
