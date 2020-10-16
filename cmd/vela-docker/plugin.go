@@ -32,12 +32,6 @@ func (p *Plugin) Exec() error {
 		return err
 	}
 
-	// output docker version for troubleshooting
-	err = execCmd(versionCmd())
-	if err != nil {
-		return err
-	}
-
 	// create registry file for authentication
 	err = p.Registry.Write()
 	if err != nil {
@@ -52,10 +46,8 @@ func (p *Plugin) Exec() error {
 
 	// check if registry dry run is enabled
 	if !p.Registry.DryRun {
-
 		// push all tags
 		for _, t := range p.Build.Tags {
-
 			// set the tag to be pushed
 			p.Push.Tag = t
 
