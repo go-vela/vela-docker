@@ -603,11 +603,11 @@ func (b *Build) AddLabels() []string {
 		fmt.Sprintf("org.opencontainers.image.created=%s", b.Label.Created),
 		fmt.Sprintf("org.opencontainers.image.url=%s", b.Label.URL),
 		fmt.Sprintf("org.opencontainers.image.revision=%s", b.Label.Commit),
-		fmt.Sprintf("io.vela.build-author=%s", b.Label.AuthorEmail),
-		fmt.Sprintf("io.vela.build-number=%d", b.Label.Number),
-		fmt.Sprintf("io.vela.build-repo=%s", b.Label.FullName),
-		fmt.Sprintf("io.vela.build-commit=%s", b.Label.Commit),
-		fmt.Sprintf("io.vela.build-url=%s", b.Label.URL),
+		fmt.Sprintf("io.vela.build.author=%s", b.Label.AuthorEmail),
+		fmt.Sprintf("io.vela.build.number=%d", b.Label.Number),
+		fmt.Sprintf("io.vela.build.repo=%s", b.Label.FullName),
+		fmt.Sprintf("io.vela.build.commit=%s", b.Label.Commit),
+		fmt.Sprintf("io.vela.build.url=%s", b.Label.URL),
 	}
 }
 
