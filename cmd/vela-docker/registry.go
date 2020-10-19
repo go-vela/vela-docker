@@ -52,7 +52,7 @@ var (
 	// nolint
 	registryFlags = []cli.Flag{
 		&cli.BoolFlag{
-			EnvVars:  []string{"PARAMETER_REGISTRY", "REGISTRY_DRY_RUN"},
+			EnvVars:  []string{"PARAMETER_DRY_RUN", "REGISTRY_DRY_RUN"},
 			FilePath: string("/vela/parameters/docker/registry/dry_run,/vela/secrets/docker/registry/dry_run"),
 			Name:     "registry.dry-run",
 			Usage:    "enable building the image without publishing",
