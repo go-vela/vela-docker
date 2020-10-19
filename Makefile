@@ -24,7 +24,7 @@ ifndef GOLANG_VERSION
 endif
 
 # create a list of linker flags for building the golang application
-LD_FLAGS = -X github.com/go-vela/vela-artifactory/version.Commit=${GITHUB_SHA} -X github.com/go-vela/vela-artifactory/version.Date=${BUILD_DATE} -X github.com/go-vela/vela-artifactory/version.Go=${GOLANG_VERSION} -X github.com/go-vela/vela-artifactory/version.Tag=${GITHUB_TAG}
+LD_FLAGS = -X github.com/go-vela/vela-docker/version.Commit=${GITHUB_SHA} -X github.com/go-vela/vela-docker/version.Date=${BUILD_DATE} -X github.com/go-vela/vela-docker/version.Go=${GOLANG_VERSION} -X github.com/go-vela/vela-docker/version.Tag=${GITHUB_TAG}
 
 # The `clean` target is intended to clean the workspace
 # and prepare the local changes for submission.
@@ -114,6 +114,7 @@ build:
 	@echo "### Building release/vela-docker binary"
 	GOOS=linux CGO_ENABLED=0 \
 		go build -a \
+		-ldflags '${LD_FLAGS}' \
 		-o release/vela-docker \
 		github.com/go-vela/vela-docker/cmd/vela-docker
 
@@ -127,7 +128,7 @@ build-static:
 	@echo "### Building static release/vela-docker binary"
 	GOOS=linux CGO_ENABLED=0 \
 		go build -a \
-		-ldflags '-s -w -extldflags "-static"' \
+		-ldflags '-s -w -extldflags "-static" ${LD_FLAGS}' \
 		-o release/vela-docker \
 		github.com/go-vela/vela-docker/cmd/vela-docker
 
