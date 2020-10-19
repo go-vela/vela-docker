@@ -5,9 +5,13 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"time"
+
+	"github.com/go-vela/vela-docker/version"
 
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
@@ -33,8 +37,9 @@ func main() {
 
 	// Plugin Metadata
 
-	app.Compiled = time.Now()
 	app.Action = run
+	app.Compiled = time.Now()
+	app.Version = version.New().Semantic()
 
 	// Plugin Flags
 
@@ -65,6 +70,15 @@ func main() {
 
 // run executes the plugin based off the configuration provided.
 func run(c *cli.Context) error {
+	// capture the version information as pretty JSON
+	v, err := json.MarshalIndent(version.New(), "", "  ")
+	if err != nil {
+		return err
+	}
+
+	// output the version information to stdout
+	fmt.Fprintf(os.Stdout, "%s\n", string(v))
+
 	// set the log level for the plugin
 	switch c.String("log.level") {
 	case "t", "trace", "Trace", "TRACE":
@@ -148,7 +162,7 @@ func run(c *cli.Context) error {
 	}
 
 	// validate the plugin
-	err := p.Validate(c.String("daemon"))
+	err = p.Validate(c.String("daemon"))
 	if err != nil {
 		return err
 	}
