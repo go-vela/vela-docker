@@ -50,8 +50,10 @@ type (
 
 	// Storage represents the "storage" prefixed flags within the "dockerd" command.
 	Storage struct {
+		// enables setting an alternate storage driver
 		Driver string
-		Opts   []string
+		// enables setting options on the alternate storage driver
+		Opts []string
 	}
 )
 
