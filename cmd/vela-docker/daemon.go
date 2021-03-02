@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -50,8 +50,10 @@ type (
 
 	// Storage represents the "storage" prefixed flags within the "dockerd" command.
 	Storage struct {
+		// enables setting an alternate storage driver
 		Driver string
-		Opts   []string
+		// enables setting options on the alternate storage driver
+		Opts []string
 	}
 )
 

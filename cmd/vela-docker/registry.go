@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -55,7 +55,7 @@ var (
 			EnvVars:  []string{"PARAMETER_DRY_RUN", "REGISTRY_DRY_RUN"},
 			FilePath: string("/vela/parameters/docker/registry/dry_run,/vela/secrets/docker/registry/dry_run"),
 			Name:     "registry.dry-run",
-			Usage:    "enable building the image without publishing",
+			Usage:    "enables building the image without publishing",
 		},
 		&cli.StringFlag{
 			EnvVars:  []string{"PARAMETER_REGISTRY", "REGISTRY_NAME"},
