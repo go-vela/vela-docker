@@ -32,6 +32,7 @@ func main() {
 	// output the version information to stdout
 	fmt.Fprintf(os.Stdout, "%s\n", string(bytes))
 
+	// create new CLI application
 	app := cli.NewApp()
 
 	// Plugin Information
