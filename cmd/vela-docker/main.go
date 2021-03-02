@@ -20,6 +20,18 @@ import (
 )
 
 func main() {
+	// capture application version information
+	v := version.New()
+
+	// serialize the version information as pretty JSON
+	bytes, err := json.MarshalIndent(v, "", "  ")
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	// output the version information to stdout
+	fmt.Fprintf(os.Stdout, "%s\n", string(bytes))
+
 	app := cli.NewApp()
 
 	// Plugin Information
@@ -62,7 +74,7 @@ func main() {
 	// add registry flags
 	app.Flags = append(app.Flags, registryFlags...)
 
-	err := app.Run(os.Args)
+	err = app.Run(os.Args)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -70,15 +82,6 @@ func main() {
 
 // run executes the plugin based off the configuration provided.
 func run(c *cli.Context) error {
-	// capture the version information as pretty JSON
-	v, err := json.MarshalIndent(version.New(), "", "  ")
-	if err != nil {
-		return err
-	}
-
-	// output the version information to stdout
-	fmt.Fprintf(os.Stdout, "%s\n", string(v))
-
 	// set the log level for the plugin
 	switch c.String("log.level") {
 	case "t", "trace", "Trace", "TRACE":
@@ -162,7 +165,7 @@ func run(c *cli.Context) error {
 	}
 
 	// validate the plugin
-	err = p.Validate(c.String("daemon"))
+	err := p.Validate(c.String("daemon"))
 	if err != nil {
 		return err
 	}
