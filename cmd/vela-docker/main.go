@@ -52,7 +52,7 @@ func main() {
 
 	app.Action = run
 	app.Compiled = time.Now()
-	app.Version = version.New().Semantic()
+	app.Version = v.Semantic()
 
 	// Plugin Flags
 
