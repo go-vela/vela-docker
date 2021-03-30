@@ -5,9 +5,13 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"time"
+
+	"github.com/go-vela/vela-docker/version"
 
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli/v2"
@@ -16,6 +20,19 @@ import (
 )
 
 func main() {
+	// capture application version information
+	v := version.New()
+
+	// serialize the version information as pretty JSON
+	bytes, err := json.MarshalIndent(v, "", "  ")
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	// output the version information to stdout
+	fmt.Fprintf(os.Stdout, "%s\n", string(bytes))
+
+	// create new CLI application
 	app := cli.NewApp()
 
 	// Plugin Information
@@ -33,8 +50,9 @@ func main() {
 
 	// Plugin Metadata
 
-	app.Compiled = time.Now()
 	app.Action = run
+	app.Compiled = time.Now()
+	app.Version = v.Semantic()
 
 	// Plugin Flags
 
@@ -57,7 +75,7 @@ func main() {
 	// add registry flags
 	app.Flags = append(app.Flags, registryFlags...)
 
-	err := app.Run(os.Args)
+	err = app.Run(os.Args)
 	if err != nil {
 		log.Fatal(err)
 	}
