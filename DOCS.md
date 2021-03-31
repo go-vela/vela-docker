@@ -130,7 +130,6 @@ The following parameters are used to configure the image:
 | `password` | password for communication with the registry  | `true`   | N/A               |
 | `username` | user name for communication with the registry | `true`   | N/A               |
 
-
 ### Build and Push
 
 The following parameters are used to configure the image:
@@ -190,7 +189,6 @@ The following parameters are used to configure the image:
 | `registry_mirrors`    | enables setting a preferred Docker registry mirror      | `false`  | N/A     |
 | `storage.drivers`     | enables setting an alternate storage driver             | `false`  | N/A     |
 | `storage.opts`        | enables setting options on the alternate storage driver | `false`  | N/A     |
-
 
 ## Template
 
