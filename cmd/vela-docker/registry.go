@@ -137,23 +137,26 @@ func (r *Registry) Login() error {
 	return e.Run()
 }
 
-// Validate verifies the registry is properly configured.
+// Validate verifies the Registry is properly configured.
 func (r *Registry) Validate() error {
 	logrus.Trace("validating registry plugin configuration")
 
-	// verify password are provided
-	if len(r.Password) == 0 {
-		return fmt.Errorf("no registry password provided")
-	}
-
-	// verify url is provided
+	// verify registry is provided
 	if len(r.Name) == 0 {
 		return fmt.Errorf("no registry name provided")
 	}
 
-	// verify username is provided
-	if len(r.Username) == 0 {
-		return fmt.Errorf("no registry username provided")
+	// check if dry run is disabled
+	if !r.DryRun {
+		// check if username is provided
+		if len(r.Username) == 0 {
+			return fmt.Errorf("no registry username provided")
+		}
+
+		// check if password is provided
+		if len(r.Password) == 0 {
+			return fmt.Errorf("no registry password provided")
+		}
 	}
 
 	return nil
