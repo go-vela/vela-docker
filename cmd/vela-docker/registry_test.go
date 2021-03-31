@@ -10,6 +10,50 @@ import (
 	"github.com/spf13/afero"
 )
 
+func TestDocker_Registry_Login(t *testing.T) {
+	// setup tests
+	tests := []struct {
+		failure  bool
+		registry *Registry
+	}{
+		{
+			failure: false,
+			registry: &Registry{
+				Name:     "index.docker.io",
+				Username: "octocat",
+				Password: "superSecretPassword",
+				DryRun:   true,
+			},
+		},
+		{
+			failure: true,
+			registry: &Registry{
+				Name:     "index.docker.io",
+				Username: "octocat",
+				Password: "superSecretPassword",
+				DryRun:   false,
+			},
+		},
+	}
+
+	// run tests
+	for _, test := range tests {
+		err := test.registry.Login()
+
+		if test.failure {
+			if err == nil {
+				t.Errorf("Login should have returned err")
+			}
+
+			continue
+		}
+
+		if err != nil {
+			t.Errorf("Login returned err: %v", err)
+		}
+	}
+}
+
 func TestDocker_Registry_Validate(t *testing.T) {
 	// setup types
 	r := &Registry{
