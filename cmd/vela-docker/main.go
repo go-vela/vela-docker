@@ -69,6 +69,9 @@ func main() {
 	// add build flags
 	app.Flags = append(app.Flags, buildFlags...)
 
+	// add daemon flags
+	app.Flags = append(app.Flags, daemonFlags...)
+
 	// add push flags
 	app.Flags = append(app.Flags, pushFlags...)
 
