@@ -5,7 +5,6 @@
 package main
 
 import (
-	"io/ioutil"
 	"os/exec"
 	"strconv"
 	"time"
@@ -140,11 +139,6 @@ func (d *Daemon) Exec() error {
 
 	// start the daemon in a thread
 	go func() {
-		// turn off daemon logs
-		// TODO make this configurable
-		cmd.Stdout = ioutil.Discard
-		cmd.Stderr = ioutil.Discard
-
 		err := execCmd(cmd)
 		if err != nil {
 			logrus.Error(err)
