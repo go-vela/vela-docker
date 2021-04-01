@@ -106,9 +106,17 @@ func (r *Registry) Write() error {
 	return a.WriteFile(configPath, []byte(out), 0644)
 }
 
-// Login creates logs in to the registry.
+// Login attempts to authenticate with the registry.
 func (r *Registry) Login() error {
-	logrus.Trace("creating registry configuration file")
+	// check if dry run is enabled
+	if r.DryRun {
+		logrus.Warning("dry_run enabled - skipping authentication with registry")
+
+		// skip authenticating with the registry since dry run is enabled
+		return nil
+	}
+
+	logrus.Trace("authenticating with registry")
 
 	// variable to store flags for command
 	var flags []string
@@ -116,13 +124,13 @@ func (r *Registry) Login() error {
 	// add flag for registry password
 	flags = append(flags, "--password", r.Password)
 
-	// add flag for registry password
+	// add flag for registry username
 	flags = append(flags, "--username", r.Username)
 
 	// add flag for registry name
 	flags = append(flags, r.Name)
 
-	// nolint
+	// nolint: gosec // ignore executing command as subprocess
 	e := exec.Command(_docker, append([]string{loginAction}, flags...)...)
 
 	// set command stdout to OS stdout
@@ -130,6 +138,7 @@ func (r *Registry) Login() error {
 	// set command stderr to OS stderr
 	e.Stderr = os.Stderr
 
+	// replace the plain-test password with masking for security purposes
 	cmd := strings.ReplaceAll(strings.Join(e.Args, " "), r.Password, constants.SecretMask)
 
 	fmt.Println("$", cmd)
