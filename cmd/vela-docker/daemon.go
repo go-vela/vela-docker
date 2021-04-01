@@ -115,7 +115,7 @@ func (d *Daemon) Command() (*exec.Cmd, error) {
 		//
 		// this helps to drastically reduce the level of logs
 		// output by the plugin when starting up the docker daemon
-		flags = append(flags, "--log-level=error")
+		flags = append(flags, "--log-level", "error")
 	}
 
 	// check if MTU is provided
