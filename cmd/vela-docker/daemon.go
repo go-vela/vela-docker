@@ -30,6 +30,8 @@ type (
 		InsecureRegistries []string
 		// enables IPv6 networking
 		IPV6 bool
+		// enable setting the log level for the daemon
+		LogLevel string `json:"log_level"`
 		// enable setting the containers network MTU
 		MTU int
 		// enables setting a preferred Docker registry mirror
@@ -92,12 +94,10 @@ func (d *Daemon) Command() (*exec.Cmd, error) {
 		flags = append(flags, "--experimental")
 	}
 
-	// check if InsecureRegistries is provided
-	if len(d.InsecureRegistries) > 0 {
-		for _, i := range d.InsecureRegistries {
-			// add flag for InsecureRegistries from provided build command
-			flags = append(flags, "--insecure-registry", i)
-		}
+	// iterate through the insecure registries provided
+	for _, i := range d.InsecureRegistries {
+		// add flag for InsecureRegistries from provided build command
+		flags = append(flags, "--insecure-registry", i)
 	}
 
 	// check if Experimental is provided
@@ -106,18 +106,28 @@ func (d *Daemon) Command() (*exec.Cmd, error) {
 		flags = append(flags, "--ipv6")
 	}
 
+	// check if LogLevel is provided
+	if len(d.LogLevel) > 0 {
+		// add flag for LogLevel from provided build command
+		flags = append(flags, "--log-level", d.LogLevel)
+	} else {
+		// add flag for LogLevel hardcoded to error level logging
+		//
+		// this helps to drastically reduce the level of logs
+		// output by the plugin when starting up the docker daemon
+		flags = append(flags, "--log-level=error")
+	}
+
 	// check if MTU is provided
 	if d.MTU > 0 {
 		// add flag for MTU from provided build command
 		flags = append(flags, "--mtu", strconv.Itoa(d.MTU))
 	}
 
-	// check if RegistryMirrors is provided
-	if len(d.RegistryMirrors) > 0 {
-		for _, r := range d.RegistryMirrors {
-			// add flag for RegistryMirrors from provided build command
-			flags = append(flags, "--registry-mirror", r)
-		}
+	// iterate through the registry mirrors provided
+	for _, r := range d.RegistryMirrors {
+		// add flag for RegistryMirrors from provided build command
+		flags = append(flags, "--registry-mirror", r)
 	}
 
 	// add flags for Storage configuration
