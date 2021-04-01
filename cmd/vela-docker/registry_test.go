@@ -55,59 +55,68 @@ func TestDocker_Registry_Login(t *testing.T) {
 }
 
 func TestDocker_Registry_Validate(t *testing.T) {
-	// setup types
-	r := &Registry{
-		Name:     "index.docker.io",
-		Username: "octocat",
-		Password: "superSecretPassword",
-		DryRun:   false,
+	// setup tests
+	tests := []struct {
+		failure  bool
+		registry *Registry
+	}{
+		{
+			failure: false,
+			registry: &Registry{
+				Name:     "index.docker.io",
+				Username: "octocat",
+				Password: "superSecretPassword",
+				DryRun:   false,
+			},
+		},
+		{
+			failure: false,
+			registry: &Registry{
+				Name:   "index.docker.io",
+				DryRun: true,
+			},
+		},
+		{
+			failure: true,
+			registry: &Registry{
+				Username: "octocat",
+				Password: "superSecretPassword",
+				DryRun:   false,
+			},
+		},
+		{
+			failure: true,
+			registry: &Registry{
+				Name:     "index.docker.io",
+				Password: "superSecretPassword",
+				DryRun:   false,
+			},
+		},
+		{
+			failure: true,
+			registry: &Registry{
+				Name:     "index.docker.io",
+				Username: "octocat",
+				DryRun:   false,
+			},
+		},
 	}
 
-	err := r.Validate()
-	if err != nil {
-		t.Errorf("Validate returned err: %v", err)
-	}
-}
+	// run tests
+	for _, test := range tests {
+		err := test.registry.Validate()
 
-func TestDocker_Registry_Validate_NoName(t *testing.T) {
-	// setup types
-	r := &Registry{
-		Username: "octocat",
-		Password: "superSecretPassword",
-		DryRun:   false,
-	}
+		if test.failure {
+			if err == nil {
+				t.Errorf("Validate should have returned err")
+			}
 
-	err := r.Validate()
-	if err == nil {
-		t.Errorf("Validate should have returned err")
-	}
-}
+			continue
+		}
 
-func TestDocker_Registry_Validate_NoUsername(t *testing.T) {
-	// setup types
-	r := &Registry{
-		Name:     "index.docker.io",
-		Password: "superSecretPassword",
-		DryRun:   false,
-	}
-
-	err := r.Validate()
-	if err == nil {
-		t.Errorf("Validate should have returned err")
-	}
-}
-
-func TestDocker_Registry_Validate_NoPassword(t *testing.T) {
-	// setup types
-	r := &Registry{
-		Name:     "index.docker.io",
-		Username: "octocat",
-		DryRun:   false,
-	}
-
-	err := r.Validate()
-	if err == nil {
-		t.Errorf("Validate should have returned err")
+		if err != nil {
+			t.Errorf("Validate returned err: %v", err)
+		}
 	}
 }
 
