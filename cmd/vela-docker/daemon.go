@@ -94,12 +94,10 @@ func (d *Daemon) Command() (*exec.Cmd, error) {
 		flags = append(flags, "--experimental")
 	}
 
-	// check if InsecureRegistries is provided
-	if len(d.InsecureRegistries) > 0 {
-		for _, i := range d.InsecureRegistries {
-			// add flag for InsecureRegistries from provided build command
-			flags = append(flags, "--insecure-registry", i)
-		}
+	// iterate through the insecure registries provided
+	for _, i := range d.InsecureRegistries {
+		// add flag for InsecureRegistries from provided build command
+		flags = append(flags, "--insecure-registry", i)
 	}
 
 	// check if Experimental is provided
@@ -126,12 +124,10 @@ func (d *Daemon) Command() (*exec.Cmd, error) {
 		flags = append(flags, "--mtu", strconv.Itoa(d.MTU))
 	}
 
-	// check if RegistryMirrors is provided
-	if len(d.RegistryMirrors) > 0 {
-		for _, r := range d.RegistryMirrors {
-			// add flag for RegistryMirrors from provided build command
-			flags = append(flags, "--registry-mirror", r)
-		}
+	// iterate through the registry mirrors provided
+	for _, r := range d.RegistryMirrors {
+		// add flag for RegistryMirrors from provided build command
+		flags = append(flags, "--registry-mirror", r)
 	}
 
 	// add flags for Storage configuration
