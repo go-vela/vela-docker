@@ -32,6 +32,18 @@ func (p *Plugin) Exec() error {
 		return err
 	}
 
+	// output the docker version
+	err = execCmd(versionCmd())
+	if err != nil {
+		return err
+	}
+
+	// output the docker information
+	err = execCmd(infoCmd())
+	if err != nil {
+		return err
+	}
+
 	// create registry file for authentication
 	err = p.Registry.Write()
 	if err != nil {

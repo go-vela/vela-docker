@@ -157,7 +157,7 @@ func (d *Daemon) Exec() error {
 
 	// iterate through with a retryLimit
 	for i := 0; i < retryLimit; i++ {
-		err := execCmd(versionCmd())
+		err := versionCmd().Run()
 		if err == nil {
 			break
 		}
