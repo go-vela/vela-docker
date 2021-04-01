@@ -30,6 +30,8 @@ type (
 		InsecureRegistries []string
 		// enables IPv6 networking
 		IPV6 bool
+		// enable setting the log level for the daemon
+		LogLevel string `json:"log_level"`
 		// enable setting the containers network MTU
 		MTU int
 		// enables setting a preferred Docker registry mirror
@@ -104,6 +106,18 @@ func (d *Daemon) Command() (*exec.Cmd, error) {
 	if d.IPV6 {
 		// add flag for Experimental from provided build command
 		flags = append(flags, "--ipv6")
+	}
+
+	// check if LogLevel is provided
+	if len(d.LogLevel) > 0 {
+		// add flag for LogLevel from provided build command
+		flags = append(flags, "--log-level", d.LogLevel)
+	} else {
+		// add flag for LogLevel hardcoded to error level logging
+		//
+		// this helps to drastically reduce the level of logs
+		// output by the plugin when starting up the docker daemon
+		flags = append(flags, "--log-level=error")
 	}
 
 	// check if MTU is provided
