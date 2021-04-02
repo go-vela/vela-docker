@@ -26,8 +26,8 @@ type Push struct {
 // nolint // ignoring line length on file paths on comments
 var pushFlags = []cli.Flag{
 	&cli.BoolFlag{
-		EnvVars:  []string{"PARAMETER_DISABLE_CONTENT_TRUST"},
-		FilePath: string("/vela/parameters/docker/build/disable-content-trust,/vela/secrets/docker/build/disable-content-trust"),
+		EnvVars:  []string{"PARAMETER_DISABLE_CONTENT_TRUST", "PARAMETER_DISABLE_CONTENT_TRUST"},
+		FilePath: "/vela/parameters/docker/disable-content-trust,/vela/secrets/docker/disable-content-trust",
 		Name:     "push.disable-content-trust",
 		Usage:    "enables skipping image verification (default true)",
 	},

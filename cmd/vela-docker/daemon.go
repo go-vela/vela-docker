@@ -62,8 +62,8 @@ type (
 // nolint // ignoring line length on file paths on comments
 var daemonFlags = []cli.Flag{
 	&cli.StringFlag{
-		EnvVars:  []string{"PARAMETER_DAEMON"},
-		FilePath: string("/vela/parameters/docker/build/daemon,/vela/secrets/docker/build/daemon"),
+		EnvVars:  []string{"PARAMETER_DAEMON", "DOCKER_DAEMON"},
+		FilePath: "/vela/parameters/docker/daemon,/vela/secrets/docker/daemon",
 		Name:     "daemon",
 		Usage:    "enables specifying a network bridge IP",
 	},
