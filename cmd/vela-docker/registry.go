@@ -52,27 +52,27 @@ var (
 	// nolint
 	registryFlags = []cli.Flag{
 		&cli.BoolFlag{
-			EnvVars:  []string{"PARAMETER_DRY_RUN", "REGISTRY_DRY_RUN"},
-			FilePath: string("/vela/parameters/docker/registry/dry_run,/vela/secrets/docker/registry/dry_run"),
+			EnvVars:  []string{"PARAMETER_DRY_RUN", "DOCKER_DRY_RUN"},
+			FilePath: "/vela/parameters/docker/dry_run,/vela/secrets/docker/dry_run",
 			Name:     "registry.dry-run",
 			Usage:    "enables building the image without publishing",
 		},
 		&cli.StringFlag{
-			EnvVars:  []string{"PARAMETER_REGISTRY", "REGISTRY_NAME"},
-			FilePath: string("/vela/parameters/docker/registry/name,/vela/secrets/docker/registry/name"),
+			EnvVars:  []string{"PARAMETER_REGISTRY", "DOCKER_REGISTRY"},
+			FilePath: "/vela/parameters/docker/registry,/vela/secrets/docker/registry",
 			Name:     "registry.name",
 			Usage:    "Docker registry address to communicate with",
 			Value:    "index.docker.io",
 		},
 		&cli.StringFlag{
-			EnvVars:  []string{"PARAMETER_PASSWORD", "REGISTRY_PASSWORD", "DOCKER_PASSWORD"},
-			FilePath: string("/vela/parameters/docker/registry/password,/vela/secrets/docker/registry/password,/vela/secrets/docker/password"),
+			EnvVars:  []string{"PARAMETER_PASSWORD", "DOCKER_PASSWORD"},
+			FilePath: "/vela/parameters/docker/password,/vela/secrets/docker/password",
 			Name:     "registry.password",
 			Usage:    "password for communication with the registry",
 		},
 		&cli.StringFlag{
-			EnvVars:  []string{"PARAMETER_USERNAME", "REGISTRY_USERNAME", "DOCKER_USERNAME"},
-			FilePath: string("/vela/parameters/docker/registry/username,/vela/secrets/docker/registry/username,/vela/secrets/docker/username"),
+			EnvVars:  []string{"PARAMETER_USERNAME", "DOCKER_USERNAME"},
+			FilePath: "/vela/parameters/docker/username,/vela/secrets/docker/username",
 			Name:     "registry.username",
 			Usage:    "user name for communication with the registry",
 		},
