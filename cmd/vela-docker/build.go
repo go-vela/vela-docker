@@ -61,7 +61,7 @@ type (
 		// enables setting not use cache when building the image
 		NoCache bool
 		// enables setting an output destination (format: type=local,dest=path)
-		Outputs []string
+		Output string
 		// enables setting a platform if server is multi-platform capable
 		Platform string
 		// enables setting type of progress output - options (auto|plain|tty)
@@ -75,7 +75,7 @@ type (
 		// enables setting the Docker repository name for the image
 		Repo string
 		// enables setting a secret file to expose to the build (only if BuildKit enabled): id=mysecret,src=/local/secret
-		Secrets []string
+		Secret string
 		// enables setting security options
 		SecurityOpts []string
 		// enables setting the size of /dev/shm
@@ -231,11 +231,11 @@ var buildFlags = []cli.Flag{
 		Name:     "build.no-cache",
 		Usage:    "enables setting the networking mode for the RUN instructions during build (default \"default\")",
 	},
-	&cli.StringSliceFlag{
-		EnvVars:  []string{"PARAMETER_OUTPUTS", "DOCKER_OUTPUTS"},
-		FilePath: "/vela/parameters/docker/outputs,/vela/secrets/docker/outputs",
-		Name:     "build.outputs",
-		Usage:    "enables setting an output destination (format: type=local,dest=path)",
+	&cli.StringFlag{
+		EnvVars:  []string{"PARAMETER_OUTPUT", "DOCKER_OUTPUT"},
+		FilePath: "/vela/parameters/docker/output,/vela/secrets/docker/output",
+		Name:     "build.output",
+		Usage:    "set an output destination (format: type=local,dest=path)",
 	},
 	&cli.StringFlag{
 		EnvVars:  []string{"PARAMETER_PLATFORM", "DOCKER_PLATFORM"},
@@ -274,11 +274,11 @@ var buildFlags = []cli.Flag{
 		Name:     "build.repo",
 		Usage:    "Docker repository name for the image",
 	},
-	&cli.StringSliceFlag{
-		EnvVars:  []string{"PARAMETER_SECRETS", "DOCKER_SECRETS"},
-		FilePath: "/vela/parameters/docker/secrets,/vela/secrets/docker/secrets",
-		Name:     "build.secrets",
-		Usage:    "enables setting a secret file to expose to the build (only if BuildKit enabled): id=mysecret,src=/local/secret",
+	&cli.StringFlag{
+		EnvVars:  []string{"PARAMETER_SECRET", "DOCKER_SECRET"},
+		FilePath: "/vela/parameters/docker/secret,/vela/secrets/docker/secret",
+		Name:     "build.secret",
+		Usage:    "set a secret file to expose to the build (only if BuildKit enabled): id=mysecret,src=/local/secret",
 	},
 	&cli.StringSliceFlag{
 		EnvVars:  []string{"PARAMETER_SECURITY_OPTS", "DOCKER_SECURITY_OPTS"},
@@ -459,10 +459,10 @@ func (b *Build) Command() (*exec.Cmd, error) {
 		flags = append(flags, "--no-cache")
 	}
 
-	// iterate through the outputs provided
-	for _, o := range b.Outputs {
-		// add flag for Outputs from provided build command
-		flags = append(flags, "--output", o)
+	// check if Output is provided
+	if len(b.Output) > 0 {
+		// add flag for output from provided build command
+		flags = append(flags, "--output", b.Output)
 	}
 
 	// check if Platform is provided
@@ -495,10 +495,10 @@ func (b *Build) Command() (*exec.Cmd, error) {
 		flags = append(flags, "--rm")
 	}
 
-	// iterate through the secrets provided
-	for _, s := range b.Secrets {
-		// add flag for Secrets from provided build command
-		flags = append(flags, "--secret", s)
+	// check if Secret is provided
+	if len(b.Secret) > 0 {
+		// add flag for secret from provided build command
+		flags = append(flags, "--secret", b.Secret)
 	}
 
 	// iterate through the security options provided
