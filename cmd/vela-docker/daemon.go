@@ -5,7 +5,6 @@
 package main
 
 import (
-	"io/ioutil"
 	"os/exec"
 	"strconv"
 	"time"
@@ -150,11 +149,6 @@ func (d *Daemon) Exec() error {
 
 	// start the daemon in a thread
 	go func() {
-		// turn off daemon logs
-		// TODO make this configurable
-		cmd.Stdout = ioutil.Discard
-		cmd.Stderr = ioutil.Discard
-
 		err := execCmd(cmd)
 		if err != nil {
 			logrus.Error(err)
@@ -167,7 +161,7 @@ func (d *Daemon) Exec() error {
 
 	// iterate through with a retryLimit
 	for i := 0; i < retryLimit; i++ {
-		err := execCmd(versionCmd())
+		err := versionCmd().Run()
 		if err == nil {
 			break
 		}
