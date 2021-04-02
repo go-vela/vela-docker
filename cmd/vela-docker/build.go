@@ -358,20 +358,16 @@ func (b *Build) Command() (*exec.Cmd, error) {
 	// variable to store flags for command
 	var flags []string
 
-	// check if AddHosts is provided
-	if len(b.AddHosts) > 0 {
-		for _, a := range b.AddHosts {
-			// add flag for AddHosts from provided build command
-			flags = append(flags, "--add-host", a)
-		}
+	// iterate through the additional hosts provided
+	for _, a := range b.AddHosts {
+		// add flag for AddHosts from provided build command
+		flags = append(flags, "--add-host", a)
 	}
 
-	// check if BuildArgs is provided
-	if len(b.BuildArgs) > 0 {
-		for _, b := range b.BuildArgs {
-			// add flag for BuildArgs from provided build command
-			flags = append(flags, "--build-arg", b)
-		}
+	// iterate through the build arguments provided
+	for _, b := range b.BuildArgs {
+		// add flag for BuildArgs from provided build command
+		flags = append(flags, "--build-arg", b)
 	}
 
 	// check if CacheFrom is provided
@@ -425,28 +421,22 @@ func (b *Build) Command() (*exec.Cmd, error) {
 		flags = append(flags, "--isolation", b.Isolation)
 	}
 
-	// check if Labels is provided
-	if len(b.Labels) > 0 {
-		for _, l := range b.Labels {
-			// add flag for Labels from provided build command
-			flags = append(flags, "--label", l)
-		}
+	// iterate through the labels provided
+	for _, l := range b.Labels {
+		// add flag for Labels from provided build command
+		flags = append(flags, "--label", l)
 	}
 
-	// check if Memory is provided
-	if len(b.Memory) > 0 {
-		for _, m := range b.Memory {
-			// add flag for Memories from provided build command
-			flags = append(flags, "--memory", m)
-		}
+	// iterate through the memory arguments provided
+	for _, m := range b.Memory {
+		// add flag for Memories from provided build command
+		flags = append(flags, "--memory", m)
 	}
 
-	// check if MemorySwaps is provided
-	if len(b.MemorySwaps) > 0 {
-		for _, m := range b.MemorySwaps {
-			// add flag for Memories from provided build command
-			flags = append(flags, "--memory-swap", m)
-		}
+	// iterate through the memory swap arguments provided
+	for _, m := range b.MemorySwaps {
+		// add flag for Memories from provided build command
+		flags = append(flags, "--memory-swap", m)
 	}
 
 	// check if Network is provided
@@ -461,12 +451,10 @@ func (b *Build) Command() (*exec.Cmd, error) {
 		flags = append(flags, "--no-cache")
 	}
 
-	// check if Outputs is provided
-	if len(b.Outputs) > 0 {
-		for _, o := range b.Outputs {
-			// add flag for Outputs from provided build command
-			flags = append(flags, "--output", o)
-		}
+	// iterate through the outputs provided
+	for _, o := range b.Outputs {
+		// add flag for Outputs from provided build command
+		flags = append(flags, "--output", o)
 	}
 
 	// check if Platform is provided
@@ -499,28 +487,22 @@ func (b *Build) Command() (*exec.Cmd, error) {
 		flags = append(flags, "--rm")
 	}
 
-	// check if Secrets is provided
-	if len(b.Secrets) > 0 {
-		for _, s := range b.Secrets {
-			// add flag for Secrets from provided build command
-			flags = append(flags, "--secret", s)
-		}
+	// iterate through the secrets provided
+	for _, s := range b.Secrets {
+		// add flag for Secrets from provided build command
+		flags = append(flags, "--secret", s)
 	}
 
-	// check if SecurityOpts is provided
-	if len(b.SecurityOpts) > 0 {
-		for _, s := range b.SecurityOpts {
-			// add flag for SecurityOpts from provided build command
-			flags = append(flags, "--security-opt", s)
-		}
+	// iterate through the security options provided
+	for _, s := range b.SecurityOpts {
+		// add flag for SecurityOpts from provided build command
+		flags = append(flags, "--security-opt", s)
 	}
 
-	// check if ShmSizes is provided
-	if len(b.ShmSizes) > 0 {
-		for _, s := range b.ShmSizes {
-			// add flag for ShmSizes from provided build command
-			flags = append(flags, "--shm-size", s)
-		}
+	// iterate through the SHM sizes provided
+	for _, s := range b.ShmSizes {
+		// add flag for ShmSizes from provided build command
+		flags = append(flags, "--shm-size", s)
 	}
 
 	// check if Squash is provided
@@ -529,12 +511,10 @@ func (b *Build) Command() (*exec.Cmd, error) {
 		flags = append(flags, "--squash")
 	}
 
-	// check if SshComponents is provided
-	if len(b.SshComponents) > 0 {
-		for _, s := range b.SshComponents {
-			// add flag for SshComponents from provided build command
-			flags = append(flags, "--ssh", s)
-		}
+	// iterate through the SSH components provided
+	for _, s := range b.SshComponents {
+		// add flag for SshComponents from provided build command
+		flags = append(flags, "--ssh", s)
 	}
 
 	// check if Stream is provided
@@ -543,12 +523,10 @@ func (b *Build) Command() (*exec.Cmd, error) {
 		flags = append(flags, "--stream")
 	}
 
-	// check if Tags is provided
-	if len(b.Tags) > 0 {
-		for _, t := range b.Tags {
-			// add flag for Tags from provided build command
-			flags = append(flags, "--tag", t)
-		}
+	// iterate through the tags provided
+	for _, t := range b.Tags {
+		// add flag for Tags from provided build command
+		flags = append(flags, "--tag", t)
 	}
 
 	// check if Target is provided
@@ -557,12 +535,10 @@ func (b *Build) Command() (*exec.Cmd, error) {
 		flags = append(flags, "--target", b.Target)
 	}
 
-	// check if Ulimits is provided
-	if len(b.Ulimits) > 0 {
-		for _, u := range b.Ulimits {
-			// add flag for Ulimits from provided build command
-			flags = append(flags, "--ulimit", u)
-		}
+	// iterate through the ulimits provided
+	for _, u := range b.Ulimits {
+		// add flag for Ulimits from provided build command
+		flags = append(flags, "--ulimit", u)
 	}
 
 	// add the required directory param
