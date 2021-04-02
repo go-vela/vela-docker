@@ -146,6 +146,7 @@ func run(c *cli.Context) error {
 			Pull:          c.Bool("build.pull"),
 			Quiet:         c.Bool("build.quiet"),
 			Remove:        c.Bool("build.remove"),
+			Repo:          c.String("build.repo"),
 			Secrets:       c.StringSlice("build.secrets"),
 			SecurityOpts:  c.StringSlice("build.security-opts"),
 			ShmSizes:      c.StringSlice("build.shm-sizes"),

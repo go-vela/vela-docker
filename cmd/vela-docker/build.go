@@ -72,6 +72,8 @@ type (
 		Quiet bool
 		// enables removing the intermediate containers after a successful build (default true)
 		Remove bool
+		// enables setting the Docker repository name for the image
+		Repo string
 		// enables setting a secret file to expose to the build (only if BuildKit enabled): id=mysecret,src=/local/secret
 		Secrets []string
 		// enables setting security options
@@ -265,6 +267,12 @@ var buildFlags = []cli.Flag{
 		Name:     "build.remove",
 		Usage:    "enables removing the intermediate containers after a successful build (default true)",
 		Value:    true,
+	},
+	&cli.StringFlag{
+		EnvVars:  []string{"PARAMETER_REPO", "DOCKER_REPO"},
+		FilePath: "/vela/parameters/docker/repo,/vela/secrets/docker/repo",
+		Name:     "build.repo",
+		Usage:    "Docker repository name for the image",
 	},
 	&cli.StringSliceFlag{
 		EnvVars:  []string{"PARAMETER_SECRETS", "DOCKER_SECRETS"},
@@ -525,6 +533,14 @@ func (b *Build) Command() (*exec.Cmd, error) {
 
 	// iterate through the tags provided
 	for _, t := range b.Tags {
+		// check if a Docker repository was provided
+		if len(b.Repo) > 0 {
+			// check if the tag already has the repo in it
+			if !strings.Contains(t, b.Repo) {
+				t = fmt.Sprintf("%s:%s", b.Repo, t)
+			}
+		}
+
 		// add flag for Tags from provided build command
 		flags = append(flags, "--tag", t)
 	}
