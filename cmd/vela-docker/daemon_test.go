@@ -42,6 +42,7 @@ func TestDocker_Daemon_Command(t *testing.T) {
 		"--experimental",
 		fmt.Sprintf("--insecure-registry %s", d.InsecureRegistries[0]),
 		"--ipv6",
+		"--log-level error",
 		fmt.Sprintf("--mtu %d", d.MTU),
 		fmt.Sprintf("--registry-mirror %s", d.RegistryMirrors[0]),
 		fmt.Sprintf("--storage-driver %s", d.Storage.Driver),
