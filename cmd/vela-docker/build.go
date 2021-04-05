@@ -437,13 +437,13 @@ func (b *Build) Command() (*exec.Cmd, error) {
 
 	// iterate through the memory arguments provided
 	for _, m := range b.Memory {
-		// add flag for Memories from provided build command
+		// add flag for Memory from provided build command
 		flags = append(flags, "--memory", m)
 	}
 
 	// iterate through the memory swap arguments provided
 	for _, m := range b.MemorySwaps {
-		// add flag for Memories from provided build command
+		// add flag for Memory Swaps from provided build command
 		flags = append(flags, "--memory-swap", m)
 	}
 
