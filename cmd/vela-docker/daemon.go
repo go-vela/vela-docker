@@ -26,7 +26,7 @@ type (
 		// enable experimental features
 		Experimental bool
 		// enables insecure registry communication
-		InsecureRegistries []string
+		InsecureRegistries []string `json:"insecure_registries"`
 		// enables IPv6 networking
 		IPV6 bool
 		// enable setting the log level for the daemon
@@ -34,7 +34,7 @@ type (
 		// enable setting the containers network MTU
 		MTU int
 		// enables setting a preferred Docker registry mirror
-		RegistryMirrors []string
+		RegistryMirrors []string `json:"registry_mirrors"`
 		// used for translating the storage configuration
 		Storage *Storage
 		// enables setting custom storage options
