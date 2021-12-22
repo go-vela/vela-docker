@@ -7,7 +7,6 @@ require (
 	github.com/go-vela/types v0.11.0
 	github.com/joho/godotenv v1.4.0
 	github.com/sirupsen/logrus v1.8.1
-	github.com/spf13/afero v1.6.0
-	github.com/stretchr/testify v1.5.1 // indirect
+	github.com/spf13/afero v1.7.0
 	github.com/urfave/cli/v2 v2.3.0
 )
