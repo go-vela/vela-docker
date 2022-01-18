@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Target Brands, Inc. All rights reserved.
+// Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 //
 // Use of this source code is governed by the LICENSE file in this repository.
 
@@ -40,7 +40,7 @@ func main() {
 	app.Name = "vela-docker"
 	app.HelpName = "vela-docker"
 	app.Usage = "Vela Docker plugin for building and publishing images"
-	app.Copyright = "Copyright (c) 2021 Target Brands, Inc. All rights reserved."
+	app.Copyright = "Copyright (c) 2022 Target Brands, Inc. All rights reserved."
 	app.Authors = []*cli.Author{
 		{
 			Name:  "Vela Admins",
