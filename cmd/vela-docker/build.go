@@ -78,6 +78,8 @@ type (
 		Secret string
 		// enables setting security options
 		SecurityOpts []string
+		// flag to indicate whether the build step should be executed
+		ShouldExec bool
 		// enables setting the size of /dev/shm
 		ShmSizes []string
 		// enables setting squash newly built layers into a single new layer
@@ -567,6 +569,9 @@ func (b *Build) Command() (*exec.Cmd, error) {
 
 // Exec formats and runs the commands for building a Docker image.
 func (b *Build) Exec() error {
+	if !b.ShouldExec {
+		return fmt.Errorf("Build step not executing because build was invalid")
+	}
 	logrus.Trace("running build with provided configuration")
 
 	// add standardized image labels
@@ -619,6 +624,7 @@ func (b *Build) Unmarshal() error {
 		// serialize raw cpu options into expected CPU type
 		err := json.Unmarshal(cpuOpts, &b.CPU)
 		if err != nil {
+			b.ShouldExec = false
 			return err
 		}
 	}
@@ -637,11 +643,12 @@ func (b *Build) Validate() error {
 
 	// verify tag are provided
 	if len(b.Tags) == 0 {
+		b.ShouldExec = false
 		return fmt.Errorf("no build tags provided")
 	}
 
 	//TODO Add validation to fields that have custom syntax
-
+	b.ShouldExec = true
 	return nil
 }
 

@@ -78,6 +78,9 @@ func main() {
 	// add registry flags
 	app.Flags = append(app.Flags, registryFlags...)
 
+	// add manifest flags
+	app.Flags = append(app.Flags, manifestFlags...)
+
 	err = app.Run(os.Args)
 	if err != nil {
 		log.Fatal(err)
@@ -166,6 +169,9 @@ func run(c *cli.Context) error {
 			Name:     c.String("registry.name"),
 			Password: c.String("registry.password"),
 			Username: c.String("registry.username"),
+		},
+		Manifest: &Manifest{
+			RawSpec: c.String("manifest.spec"),
 		},
 	}
 
