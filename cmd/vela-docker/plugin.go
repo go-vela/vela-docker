@@ -6,7 +6,7 @@ package main
 
 import (
 	"encoding/json"
-
+	"fmt"
 	"github.com/sirupsen/logrus"
 )
 
@@ -20,6 +20,8 @@ type Plugin struct {
 	Push *Push
 	// registry arguments loaded for the plugin
 	Registry *Registry
+	// manifest arguments loaded for the plugin
+	Manifest *Manifest
 }
 
 // Exec formats and runs the commands for building and publishing a Docker image.
@@ -57,25 +59,41 @@ func (p *Plugin) Exec() error {
 	}
 
 	// execute build configuration
-	err = p.Build.Exec()
-	if err != nil {
-		return err
+	if p.Build.ShouldExec {
+		err = p.Build.Exec()
+		if err != nil {
+			return err
+		}
+		// check if registry dry run is enabled
+		if !p.Registry.DryRun {
+			// push all tags
+			for _, t := range p.Build.Tags {
+				// set the tag to be pushed
+				p.Push.Tag = t
+
+				// execute push configuration
+				err = p.Push.Exec()
+				if err != nil {
+					return err
+				}
+			}
+		}
 	}
 
-	// check if registry dry run is enabled
-	if !p.Registry.DryRun {
-		// push all tags
-		for _, t := range p.Build.Tags {
-			// set the tag to be pushed
-			p.Push.Tag = t
 
-			// execute push configuration
-			err = p.Push.Exec()
+	if p.Manifest.ShouldExec {
+		err = p.Manifest.Exec()
+		if err != nil {
+			return err
+		}
+		if !p.Registry.DryRun {
+			err = p.Manifest.ExecPushCmd()
 			if err != nil {
 				return err
 			}
 		}
 	}
+
 
 	return nil
 }
@@ -99,16 +117,30 @@ func (p *Plugin) Validate(daemon string) error {
 	}
 
 	// when user adds configuration additional options
-	err = p.Build.Unmarshal()
-	if err != nil {
-		return err
+	buildErr := p.Build.Unmarshal()
+	if buildErr != nil {
+		logrus.Tracef("Problem unmarshalling build: %v", buildErr)
+	} else {
+		// validate build configuration
+		buildErr = p.Build.Validate()
+		if buildErr != nil {
+			logrus.Tracef("Problem validating build: %v", buildErr)
+		}
 	}
 
-	// validate build configuration
-	err = p.Build.Validate()
-	if err != nil {
-		return err
+	manifestErr := p.Manifest.Unmarshal()
+	if manifestErr != nil {
+		logrus.Tracef("Problem unmarshalling manifest: %v", manifestErr)
+	} else {
+		manifestErr = p.Manifest.Validate()
+		if manifestErr != nil {
+			logrus.Tracef("Problem validating manifest: %v", manifestErr)
+		}
 	}
 
+	if manifestErr != nil && buildErr != nil {
+		err = fmt.Errorf("Neither build nor manifest was valid")
+		return err
+	}
 	return nil
 }
