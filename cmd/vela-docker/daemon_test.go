@@ -30,7 +30,7 @@ func TestDocker_Daemon_Command(t *testing.T) {
 		},
 	}
 
-	// nolint // this functionality is not exploitable the way
+	// nolint:gosec // this functionality is not exploitable the way
 	// the plugin accepts configuration
 	want := exec.Command(
 		_dockerd,
@@ -49,7 +49,7 @@ func TestDocker_Daemon_Command(t *testing.T) {
 		fmt.Sprintf("--storage-opt %s", d.Storage.Opts[0]),
 	)
 
-	got, _ := d.Command()
+	got := d.Command()
 	if !strings.EqualFold(got.String(), want.String()) {
 		t.Errorf("Command is %v, want %v", got, want)
 	}

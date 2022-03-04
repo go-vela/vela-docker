@@ -15,7 +15,6 @@ import (
 
 type (
 	// Daemon represents the plugin configuration for daemon information.
-	// nolint // ignoring length on comments
 	Daemon struct {
 		// enables specifying a network bridge IP
 		Bip string
@@ -59,7 +58,6 @@ type (
 )
 
 // daemonFlags represents for daemon settings on the cli.
-// nolint // ignoring line length on file paths on comments
 var daemonFlags = []cli.Flag{
 	&cli.StringFlag{
 		EnvVars:  []string{"PARAMETER_DAEMON", "DOCKER_DAEMON"},
@@ -71,8 +69,7 @@ var daemonFlags = []cli.Flag{
 
 // Command formats and outputs the Build command from
 // the provided configuration to push a Docker image.
-// nolint
-func (d *Daemon) Command() (*exec.Cmd, error) {
+func (d *Daemon) Command() *exec.Cmd {
 	logrus.Trace("creating dockerd command from plugin configuration")
 
 	// variable to store flags for command
@@ -132,9 +129,8 @@ func (d *Daemon) Command() (*exec.Cmd, error) {
 	// add flags for Storage configuration
 	flags = append(flags, d.Storage.Flags()...)
 
-	// nolint // this functionality is not exploitable the way
 	// the plugin accepts configuration
-	return exec.Command(_dockerd, flags...), nil
+	return exec.Command(_dockerd, flags...)
 }
 
 // Exec formats and runs the commands for pushing a Docker image.
@@ -142,10 +138,7 @@ func (d *Daemon) Exec() error {
 	logrus.Trace("running dockerd with provided configuration")
 
 	// create the push command for the file
-	cmd, err := d.Command()
-	if err != nil {
-		return err
-	}
+	cmd := d.Command()
 
 	// start the daemon in a thread
 	go func() {

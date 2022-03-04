@@ -15,12 +15,10 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-// nolint
 const buildAction = "build"
 
 type (
 	// Build represents the plugin configuration for build information.
-	// nolint // ignoring length on comments
 	Build struct {
 		// enables adding a custom host-to-IP mapping (host:ip)
 		AddHosts []string
@@ -83,7 +81,7 @@ type (
 		// enables setting squash newly built layers into a single new layer
 		Squash bool
 		// enables setting an ssh agent socket or keys to expose to the build (only if BuildKit enabled) (format: default|<id>[=<socket>|<key>[,<key>]])
-		SshComponents []string
+		SSHComponents []string
 		// enables streaming attaches to server to negotiate build context
 		Stream bool
 		// enables naming and optionally a tag in the 'name:tag' format
@@ -126,7 +124,6 @@ type (
 )
 
 // buildFlags represents for build settings on the cli.
-// nolint // ignoring line length on file paths on comments
 var buildFlags = []cli.Flag{
 	&cli.StringSliceFlag{
 		EnvVars:  []string{"PARAMETER_ADD_HOSTS", "DOCKER_ADD_HOSTS"},
@@ -359,8 +356,8 @@ var buildFlags = []cli.Flag{
 
 // Command formats and outputs the Build command from
 // the provided configuration to build a Docker image.
-// nolint
-func (b *Build) Command() (*exec.Cmd, error) {
+// nolint:funlen,gocyclo // Ignore line length
+func (b *Build) Command() *exec.Cmd {
 	logrus.Trace("creating docker build command from plugin configuration")
 
 	// variable to store flags for command
@@ -520,8 +517,8 @@ func (b *Build) Command() (*exec.Cmd, error) {
 	}
 
 	// iterate through the SSH components provided
-	for _, s := range b.SshComponents {
-		// add flag for SshComponents from provided build command
+	for _, s := range b.SSHComponents {
+		// add flag for SSHComponents from provided build command
 		flags = append(flags, "--ssh", s)
 	}
 
@@ -560,9 +557,9 @@ func (b *Build) Command() (*exec.Cmd, error) {
 	// add the required directory param
 	flags = append(flags, b.Context)
 
-	// nolint // this functionality is not exploitable the way
+	// nolint:gosec // this functionality is not exploitable the way
 	// the plugin accepts configuration
-	return exec.Command(_docker, append([]string{buildAction}, flags...)...), nil
+	return exec.Command(_docker, append([]string{buildAction}, flags...)...)
 }
 
 // Exec formats and runs the commands for building a Docker image.
@@ -573,13 +570,10 @@ func (b *Build) Exec() error {
 	b.Labels = append(b.Labels, b.AddLabels()...)
 
 	// create the build command for the file
-	cmd, err := b.Command()
-	if err != nil {
-		return err
-	}
+	cmd := b.Command()
 
 	// run the build command for the file
-	err = execCmd(cmd)
+	err := execCmd(cmd)
 	if err != nil {
 		return err
 	}

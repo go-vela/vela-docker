@@ -12,7 +12,6 @@ import (
 
 func TestDocker_Push_Command(t *testing.T) {
 	// setup types
-	// nolint
 	p := &Push{
 		DisableContentTrust: true,
 	}
@@ -23,7 +22,7 @@ func TestDocker_Push_Command(t *testing.T) {
 		"--disable-content-trust ",
 	)
 
-	got, _ := p.Command()
+	got := p.Command()
 	if !strings.EqualFold(got.String(), want.String()) {
 		t.Errorf("Command is %v, want %v", got, want)
 	}

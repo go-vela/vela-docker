@@ -14,7 +14,6 @@ import (
 
 func TestDocker_Build_Command(t *testing.T) {
 	// setup types
-	// nolint
 	b := &Build{
 		AddHosts:     []string{"host.company.com"},
 		BuildArgs:    []string{"FOO=BAR"},
@@ -49,14 +48,14 @@ func TestDocker_Build_Command(t *testing.T) {
 		SecurityOpts:        []string{"seccomp"},
 		ShmSizes:            []string{"1"},
 		Squash:              true,
-		SshComponents:       []string{"default|<id>[=<socket>|<key>[,<key>]]"},
+		SSHComponents:       []string{"default|<id>[=<socket>|<key>[,<key>]]"},
 		Stream:              true,
 		Tags:                []string{"index.docker.io/target/vela-docker:latest"},
 		Target:              "build",
 		Ulimits:             []string{"1"},
 	}
 
-	// nolint // this functionality is not exploitable the way
+	// nolint:gosec // this functionality is not exploitable the way
 	// the plugin accepts configuration
 	want := exec.Command(
 		_docker,
@@ -91,7 +90,7 @@ func TestDocker_Build_Command(t *testing.T) {
 		fmt.Sprintf("--security-opt %s", b.SecurityOpts[0]),
 		fmt.Sprintf("--shm-size %s", b.ShmSizes[0]),
 		"--squash",
-		fmt.Sprintf("--ssh %s", b.SshComponents[0]),
+		fmt.Sprintf("--ssh %s", b.SSHComponents[0]),
 		"--stream",
 		fmt.Sprintf("--tag %s", b.Tags[0]),
 		fmt.Sprintf("--target %s", b.Target),
@@ -99,7 +98,7 @@ func TestDocker_Build_Command(t *testing.T) {
 		".",
 	)
 
-	got, _ := b.Command()
+	got := b.Command()
 	if !strings.EqualFold(got.String(), want.String()) {
 		t.Errorf("Command is %v, want %v", got, want)
 	}
