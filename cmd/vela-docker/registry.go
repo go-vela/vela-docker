@@ -28,7 +28,6 @@ const (
   }
 }`
 
-	// nolint
 	loginAction = "login"
 )
 
@@ -49,7 +48,6 @@ var (
 	appFS = afero.NewOsFs()
 
 	// registryFlags represents for registry settings on the cli.
-	// nolint
 	registryFlags = []cli.Flag{
 		&cli.BoolFlag{
 			EnvVars:  []string{"PARAMETER_DRY_RUN", "DOCKER_DRY_RUN"},

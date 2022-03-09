@@ -11,7 +11,6 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
-// nolint
 const pushAction = "push"
 
 // Push represents the plugin configuration for push information.
@@ -23,7 +22,6 @@ type Push struct {
 }
 
 // pushFlags represents for push settings on the cli.
-// nolint // ignoring line length on file paths on comments
 var pushFlags = []cli.Flag{
 	&cli.BoolFlag{
 		EnvVars:  []string{"PARAMETER_DISABLE_CONTENT_TRUST", "PARAMETER_DISABLE_CONTENT_TRUST"},
@@ -35,8 +33,7 @@ var pushFlags = []cli.Flag{
 
 // Command formats and outputs the Push command from
 // the provided configuration to push a Docker image.
-// nolint
-func (p *Push) Command() (*exec.Cmd, error) {
+func (p *Push) Command() *exec.Cmd {
 	logrus.Trace("creating docker push command from plugin configuration")
 
 	// variable to store flags for command
@@ -51,9 +48,9 @@ func (p *Push) Command() (*exec.Cmd, error) {
 	// add tag to command
 	flags = append(flags, p.Tag)
 
-	// nolint // this functionality is not exploitable the way
+	// nolint: gosec // this functionality is not exploitable the way
 	// the plugin accepts configuration
-	return exec.Command(_docker, append([]string{pushAction}, flags...)...), nil
+	return exec.Command(_docker, append([]string{pushAction}, flags...)...)
 }
 
 // Exec formats and runs the commands for pushing a Docker image.
@@ -61,13 +58,10 @@ func (p *Push) Exec() error {
 	logrus.Trace("running push with provided configuration")
 
 	// create the push command for the file
-	cmd, err := p.Command()
-	if err != nil {
-		return err
-	}
+	cmd := p.Command()
 
 	// run the push command for the file
-	err = execCmd(cmd)
+	err := execCmd(cmd)
 	if err != nil {
 		return err
 	}

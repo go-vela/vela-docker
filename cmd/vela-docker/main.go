@@ -151,7 +151,7 @@ func run(c *cli.Context) error {
 			SecurityOpts:  c.StringSlice("build.security-opts"),
 			ShmSizes:      c.StringSlice("build.shm-sizes"),
 			Squash:        c.Bool("build.squash"),
-			SshComponents: c.StringSlice("build.ssh-components"),
+			SSHComponents: c.StringSlice("build.ssh-components"),
 			Stream:        c.Bool("build.stream"),
 			Tags:          c.StringSlice("build.tags"),
 			Target:        c.String("build.target"),
