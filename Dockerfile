@@ -1,7 +1,7 @@
 # Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 #
 # Use of this source code is governed by the LICENSE file in this repository.
-FROM docker:dind
+FROM docker:20-10-dind
 
 # busybox "ip" is insufficient:
 #   [rootlesskit:child ] error: executing [[ip tuntap add name tap0 mode tap] [ip link set tap0 address 02:50:00:00:00:01]]: exit status 1
@@ -13,8 +13,10 @@ RUN mkdir /run/user && chmod 1777 /run/user
 # create a default user preconfigured for running rootless dockerd
 RUN set -eux; \
 	adduser -h /home/rootless -g 'Rootless' -D -u 1000 rootless; \
-	printf 'dockremap:100000:1000000\nrootless:1100000:10000000' > /etc/subuid; \
-	printf 'dockremap:100000:1000000\nrootless:1100000:10000000' >> /etc/subgid
+	printf 'dockremap:100000:1000000\nrootless:1100000:1000000' > /etc/subuid; \
+	printf 'dockremap:100000:1000000\nrootless:1100000:1000000' >> /etc/subgid; \
+	chmod 0644 /etc/subuid; \
+	chmod 0644 /etc/subgid
 
 RUN set -eux; \
 	\
@@ -58,8 +60,5 @@ ENV DOCKER_BUILDKIT=1
 ADD http://browserconfig.target.com/tgt-certs/tgt-ca-bundle.crt /etc/ssl/certs/ca-certificates.crt
 
 COPY release/vela-docker /bin/vela-docker
-
-ENV PARAMETER_DAEMON={\"dns\":{\"searches\":[\"target.com\"],\"servers\":[\"10.97.40.215\",\"10.97.40.216\",\"10.64.40.215\",\"10.64.40.215\"]},\"registry_mirrors\":[\"https://hub.docker.target.com\"]}
-ENV PARAMETER_REGISTRY=docker.target.com
 
 ENTRYPOINT ["/usr/local/bin/dockerd-entrypoint.sh", "/bin/vela-docker"]
