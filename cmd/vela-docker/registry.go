@@ -77,7 +77,7 @@ var (
 	}
 
 	// configPath represents the location of the Docker config file for setting registries.
-	configPath = "/root/config.json"
+	configPath = "/home/rootless/config.json"
 )
 
 // Write creates a Docker config.json file for building and publishing the image.

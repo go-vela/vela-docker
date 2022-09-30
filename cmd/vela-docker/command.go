@@ -17,7 +17,7 @@ const (
 	// _docker is the path to the executable binary in the image.
 	_docker = "/usr/local/bin/docker"
 	// _dockerd is the path to the executable daemon in the image.
-	_dockerd = "/usr/local/bin/dockerd"
+	_dockerd = "/usr/local/bin/rootlesskit"
 )
 
 // execCmd is a helper function to

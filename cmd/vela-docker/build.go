@@ -160,7 +160,7 @@ var buildFlags = []cli.Flag{
 		FilePath: "/vela/parameters/docker/context,/vela/secrets/docker/context",
 		Name:     "build.context",
 		Usage:    "enables setting the build context",
-		Value:    ".",
+		Value:    "rootless",
 	},
 	&cli.StringFlag{
 		EnvVars:  []string{"PARAMETER_CPU", "DOCKER_CPU"},
@@ -555,7 +555,7 @@ func (b *Build) Command() *exec.Cmd {
 	}
 
 	// add the required directory param
-	flags = append(flags, b.Context)
+	flags = append(flags, ".")
 
 	// nolint:gosec // this functionality is not exploitable the way
 	// the plugin accepts configuration

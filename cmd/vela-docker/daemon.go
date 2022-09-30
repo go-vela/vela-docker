@@ -5,6 +5,7 @@
 package main
 
 import (
+	"os"
 	"os/exec"
 	"strconv"
 	"time"
@@ -72,8 +73,28 @@ var daemonFlags = []cli.Flag{
 func (d *Daemon) Command() *exec.Cmd {
 	logrus.Trace("creating dockerd command from plugin configuration")
 
-	// variable to store flags for command
-	flags := []string{"--data-root=/var/lib/docker", "--host=unix:///var/run/docker.sock"}
+	err := setUpRootless()
+	if err != nil {
+		logrus.Error(err)
+	}
+
+	// // variable to store flags for command
+	flags := []string{
+		// "--data-root=/home/rootless/.local/share/docker",
+		// "--host=unix:///run/user/1000/docker.sock",
+		"--net=vpnkit",
+		"--mtu=1500",
+		"--disable-host-loopback",
+		"--port-driver=builtin",
+		"--copy-up=/etc",
+		"--copy-up=/etc/ssl/certs",
+		"--copy-up=/run",
+		"--copy-up=/vela",
+		"dockerd",
+	}
+
+	flags = append(flags, "--data-root=/home/rootless/.local/share/docker")
+	flags = append(flags, "--host=unix:///run/user/1000/docker.sock")
 
 	// check if Bip is provided
 	if len(d.Bip) > 0 {
@@ -218,4 +239,9 @@ func (s *Storage) Flags() []string {
 	}
 
 	return flags
+}
+
+func setUpRootless() error {
+	os.Setenv("XDG_RUNTIME_DIR", "/run/user/1000")
+	return nil
 }
