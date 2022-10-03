@@ -33,9 +33,17 @@ func TestDocker_Daemon_Command(t *testing.T) {
 	// nolint:gosec // this functionality is not exploitable the way
 	// the plugin accepts configuration
 	want := exec.Command(
+		_rootlesskit,
+		"--net=vpnkit",
+		"--mtu=1500",
+		"--disable-host-loopback",
+		"--port-driver=builtin",
+		"--copy-up=/etc",
+		"--copy-up=/run",
+		"--copy-up=/vela",
 		_dockerd,
-		"--data-root=/var/lib/docker",
-		"--host=unix:///var/run/docker.sock",
+		"--data-root=/home/rootless/.local/share/docker",
+		"--host=unix:///run/user/1000/docker.sock",
 		fmt.Sprintf("--bip %s", d.Bip),
 		fmt.Sprintf("--dns %s --dns %s", d.DNS.Servers[0], d.DNS.Servers[1]),
 		fmt.Sprintf("--dns-search %s", d.DNS.Searches[0]),

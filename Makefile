@@ -213,8 +213,8 @@ bump-deps-full: check
 .PHONY: docker-build
 docker-build:
 	@echo
-	@echo "### Building vela-docker:rootless image"
-	@docker build --no-cache -t vela-docker:rootless .
+	@echo "### Building vela-docker:local image"
+	@docker build --no-cache -t vela-docker:local .
 
 # The `docker-test` target is intended to execute
 # the Docker image for the plugin with test variables.
