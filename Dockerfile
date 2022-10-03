@@ -1,7 +1,7 @@
 # Copyright (c) 2022 Target Brands, Inc. All rights reserved.
 #
 # Use of this source code is governed by the LICENSE file in this repository.
-FROM docker:20-10-dind
+FROM docker:dind
 
 # busybox "ip" is insufficient:
 #   [rootlesskit:child ] error: executing [[ip tuntap add name tap0 mode tap] [ip link set tap0 address 02:50:00:00:00:01]]: exit status 1
@@ -11,13 +11,15 @@ RUN apk add --no-cache iproute2 fuse-overlayfs
 RUN mkdir /run/user && chmod 1777 /run/user
 
 # create a default user preconfigured for running rootless dockerd
+# set subuid and subgid ranges — very high due to occasional docker layers being out-of-range with default
 RUN set -eux; \
 	adduser -h /home/rootless -g 'Rootless' -D -u 1000 rootless; \
-	printf 'dockremap:100000:1000000\nrootless:1100000:1000000' > /etc/subuid; \
-	printf 'dockremap:100000:1000000\nrootless:1100000:1000000' >> /etc/subgid; \
+	printf 'dockremap:100000:2000000000\nrootless:2000100000:2000000000' > /etc/subuid; \
+	printf 'dockremap:100000:2000000000\nrootless:2000100000:2000000000' > /etc/subgid; \
 	chmod 0644 /etc/subuid; \
 	chmod 0644 /etc/subgid
 
+# establish docker rootless extras
 RUN set -eux; \
 	\
 	apkArch="$(apk --print-arch)"; \
@@ -56,8 +58,6 @@ USER rootless
 ENV DOCKER_HOST=unix:///var/run/user/1000/docker.sock
 
 ENV DOCKER_BUILDKIT=1
-
-ADD http://browserconfig.target.com/tgt-certs/tgt-ca-bundle.crt /etc/ssl/certs/ca-certificates.crt
 
 COPY release/vela-docker /bin/vela-docker
 

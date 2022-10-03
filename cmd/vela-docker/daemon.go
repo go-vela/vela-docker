@@ -73,26 +73,16 @@ var daemonFlags = []cli.Flag{
 func (d *Daemon) Command() *exec.Cmd {
 	logrus.Trace("creating dockerd command from plugin configuration")
 
-	err := setUpRootless()
+	// gather flags and set environment for rootless
+	flags, err := setUpRootless()
 	if err != nil {
 		logrus.Error(err)
 	}
 
-	// // variable to store flags for command
-	flags := []string{
-		// "--data-root=/home/rootless/.local/share/docker",
-		// "--host=unix:///run/user/1000/docker.sock",
-		"--net=vpnkit",
-		"--mtu=1500",
-		"--disable-host-loopback",
-		"--port-driver=builtin",
-		"--copy-up=/etc",
-		"--copy-up=/etc/ssl/certs",
-		"--copy-up=/run",
-		"--copy-up=/vela",
-		"dockerd",
-	}
+	// pass dockerd command as argument for rootlesskit
+	flags = append(flags, _dockerd)
 
+	// set data root and host flags for dockerd
 	flags = append(flags, "--data-root=/home/rootless/.local/share/docker")
 	flags = append(flags, "--host=unix:///run/user/1000/docker.sock")
 
@@ -151,7 +141,7 @@ func (d *Daemon) Command() *exec.Cmd {
 	flags = append(flags, d.Storage.Flags()...)
 
 	// the plugin accepts configuration
-	return exec.Command(_dockerd, flags...)
+	return exec.Command(_rootlesskit, flags...)
 }
 
 // Exec formats and runs the commands for pushing a Docker image.
@@ -241,7 +231,24 @@ func (s *Storage) Flags() []string {
 	return flags
 }
 
-func setUpRootless() error {
-	os.Setenv("XDG_RUNTIME_DIR", "/run/user/1000")
-	return nil
+// setUpRootless is a helper function to create the dockerd rootless wrapper.
+func setUpRootless() ([]string, error) {
+	// declare flags for rootless kit, copying up (mounting) important directories
+	flags := []string{
+		"--net=vpnkit",
+		"--mtu=1500",
+		"--disable-host-loopback",
+		"--port-driver=builtin",
+		"--copy-up=/etc",
+		"--copy-up=/run",
+		"--copy-up=/vela",
+	}
+
+	// set the XDG_RUNTIME_DIR to the 1000 user (rootless)
+	err := os.Setenv("XDG_RUNTIME_DIR", "/run/user/1000")
+	if err != nil {
+		return nil, err
+	}
+
+	return flags, nil
 }
