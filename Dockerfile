@@ -72,6 +72,8 @@ ENV DOCKER_HOST=unix:///var/run/user/1000/docker.sock
 
 ENV DOCKER_BUILDKIT=1
 
+COPY --from=certs /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+
 COPY release/vela-docker /bin/vela-docker
 
 ENTRYPOINT ["/usr/local/bin/dockerd-entrypoint.sh", "/bin/vela-docker"]
