@@ -126,7 +126,7 @@ func (r *Registry) Login() error {
 	// add flag for registry name
 	flags = append(flags, r.Name)
 
-	// nolint: gosec // ignore executing command as subprocess
+	//nolint: gosec // ignore executing command as subprocess
 	e := exec.Command(_docker, append([]string{loginAction}, flags...)...)
 
 	// set command stdout to OS stdout

@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestDocker_Plugin_Exec(t *testing.T) {
+func TestDocker_Plugin_Exec(_ *testing.T) {
 	// TODO Write test
 }
 
