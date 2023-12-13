@@ -46,7 +46,7 @@ func (p *Push) Command() *exec.Cmd {
 	// add tag to command
 	flags = append(flags, p.Tag)
 
-	// nolint: gosec // this functionality is not exploitable the way
+	//nolint: gosec // this functionality is not exploitable the way
 	// the plugin accepts configuration
 	return exec.Command(_docker, append([]string{pushAction}, flags...)...)
 }

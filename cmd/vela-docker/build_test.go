@@ -53,7 +53,7 @@ func TestDocker_Build_Command(t *testing.T) {
 		Ulimits:             []string{"1"},
 	}
 
-	// nolint:gosec // this functionality is not exploitable the way
+	//nolint:gosec // this functionality is not exploitable the way
 	// the plugin accepts configuration
 	want := exec.Command(
 		_docker,

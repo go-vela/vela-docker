@@ -354,7 +354,8 @@ var buildFlags = []cli.Flag{
 
 // Command formats and outputs the Build command from
 // the provided configuration to build a Docker image.
-// nolint:funlen,gocyclo // Ignore line length
+//
+//nolint:funlen,gocyclo // Ignore line length
 func (b *Build) Command() *exec.Cmd {
 	logrus.Trace("creating docker build command from plugin configuration")
 
@@ -555,7 +556,7 @@ func (b *Build) Command() *exec.Cmd {
 	// add the required directory param
 	flags = append(flags, b.Context)
 
-	// nolint:gosec // this functionality is not exploitable the way
+	//nolint:gosec // this functionality is not exploitable the way
 	// the plugin accepts configuration
 	return exec.Command(_docker, append([]string{buildAction}, flags...)...)
 }
