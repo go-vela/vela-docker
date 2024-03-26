@@ -12,7 +12,7 @@ RUN apk add --update --no-cache ca-certificates
 ##    docker build --no-cache -t vela-docker:local .    ##
 ##########################################################
 
-FROM docker:24.0-dind@sha256:c90e58d30700470fc59bdaaf802340fd25c1db628756d7bf74e100c566ba9589
+FROM docker:26.0-dind@sha256:016c45d9e31461802186e8e9aaa394f35e173a8ce913ea7195a672cdc97102f2
 
 ENV DOCKER_HOST=unix:///var/run/docker.sock
 
