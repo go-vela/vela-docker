@@ -12,17 +12,17 @@ jobs:
     
     steps:
     - name: clone
-      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
     - name: install go
-      uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5
+      uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5
       with:
         # use version from go.mod file
         go-version-file: 'go.mod'
         cache: true
 
     - name: golangci-lint
-      uses: reviewdog/action-golangci-lint@00311c26a97213f93f2fd3a3524d66762e956ae0 # v2
+      uses: reviewdog/action-golangci-lint@f9bba13753278f6a73b27a56a3ffb1bfda90ed71 # v2
       with:
         github_token: ${{ secrets.github_token }}
         golangci_lint_flags: "--config=.golangci.yml"
@@ -35,17 +35,17 @@ jobs:
     
     steps:
     - name: clone
-      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
     - name: install go
-      uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5
+      uses: actions/setup-go@0aaccfd150d50ccaeb58ebd88d36e91967a5f35b # v5
       with:
         # use version from go.mod file
         go-version-file: 'go.mod'
         cache: true
 
     - name: golangci-lint
-      uses: reviewdog/action-golangci-lint@00311c26a97213f93f2fd3a3524d66762e956ae0 # v2
+      uses: reviewdog/action-golangci-lint@f9bba13753278f6a73b27a56a3ffb1bfda90ed71 # v2
       with:
         github_token: ${{ secrets.github_token }}
         golangci_lint_flags: "--config=.golangci.yml"
