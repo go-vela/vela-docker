@@ -12,7 +12,7 @@ import (
 	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 const (
