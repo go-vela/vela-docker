@@ -55,7 +55,8 @@ func TestDocker_Build_Command(t *testing.T) {
 
 	//nolint:gosec // this functionality is not exploitable the way
 	// the plugin accepts configuration
-	want := exec.Command(
+	want := exec.CommandContext(
+		t.Context(),
 		_docker,
 		buildAction,
 		fmt.Sprintf("--add-host %s", b.AddHosts[0]),
@@ -96,7 +97,7 @@ func TestDocker_Build_Command(t *testing.T) {
 		".",
 	)
 
-	got := b.Command()
+	got := b.Command(t.Context())
 	if !strings.EqualFold(got.String(), want.String()) {
 		t.Errorf("Command is %v, want %v", got, want)
 	}
@@ -109,7 +110,7 @@ func TestDocker_Build_Exec_Error(t *testing.T) {
 		Label: &Label{},
 	}
 
-	err := b.Exec()
+	err := b.Exec(t.Context())
 	if err == nil {
 		t.Errorf("Exec should have returned err")
 	}

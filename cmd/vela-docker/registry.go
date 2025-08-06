@@ -3,16 +3,18 @@
 package main
 
 import (
+	"context"
 	"encoding/base64"
 	"fmt"
 	"os"
 	"os/exec"
 	"strings"
 
-	"github.com/go-vela/types/constants"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
+
+	"github.com/go-vela/types/constants"
 )
 
 const (
@@ -48,29 +50,45 @@ var (
 	// registryFlags represents for registry settings on the cli.
 	registryFlags = []cli.Flag{
 		&cli.BoolFlag{
-			EnvVars:  []string{"PARAMETER_DRY_RUN", "DOCKER_DRY_RUN"},
-			FilePath: "/vela/parameters/docker/dry_run,/vela/secrets/docker/dry_run",
-			Name:     "registry.dry-run",
-			Usage:    "enables building the image without publishing",
+			Name:  "registry.dry-run",
+			Usage: "enables building the image without publishing",
+			Sources: cli.NewValueSourceChain(
+				cli.EnvVar("PARAMETER_DRY_RUN"),
+				cli.EnvVar("DOCKER_DRY_RUN"),
+				cli.File("/vela/parameters/docker/dry_run"),
+				cli.File("/vela/secrets/docker/dry_run"),
+			),
 		},
 		&cli.StringFlag{
-			EnvVars:  []string{"PARAMETER_REGISTRY", "DOCKER_REGISTRY"},
-			FilePath: "/vela/parameters/docker/registry,/vela/secrets/docker/registry",
-			Name:     "registry.name",
-			Usage:    "Docker registry address to communicate with",
-			Value:    "index.docker.io",
+			Name:  "registry.name",
+			Usage: "Docker registry address to communicate with",
+			Value: "index.docker.io",
+			Sources: cli.NewValueSourceChain(
+				cli.EnvVar("PARAMETER_REGISTRY"),
+				cli.EnvVar("DOCKER_REGISTRY"),
+				cli.File("/vela/parameters/docker/registry"),
+				cli.File("/vela/secrets/docker/registry"),
+			),
 		},
 		&cli.StringFlag{
-			EnvVars:  []string{"PARAMETER_PASSWORD", "DOCKER_PASSWORD"},
-			FilePath: "/vela/parameters/docker/password,/vela/secrets/docker/password",
-			Name:     "registry.password",
-			Usage:    "password for communication with the registry",
+			Name:  "registry.password",
+			Usage: "password for communication with the registry",
+			Sources: cli.NewValueSourceChain(
+				cli.EnvVar("PARAMETER_PASSWORD"),
+				cli.EnvVar("DOCKER_PASSWORD"),
+				cli.File("/vela/parameters/docker/password"),
+				cli.File("/vela/secrets/docker/password"),
+			),
 		},
 		&cli.StringFlag{
-			EnvVars:  []string{"PARAMETER_USERNAME", "DOCKER_USERNAME"},
-			FilePath: "/vela/parameters/docker/username,/vela/secrets/docker/username",
-			Name:     "registry.username",
-			Usage:    "user name for communication with the registry",
+			Name:  "registry.username",
+			Usage: "user name for communication with the registry",
+			Sources: cli.NewValueSourceChain(
+				cli.EnvVar("PARAMETER_USERNAME"),
+				cli.EnvVar("DOCKER_USERNAME"),
+				cli.File("/vela/parameters/docker/username"),
+				cli.File("/vela/secrets/docker/username"),
+			),
 		},
 	}
 
@@ -103,7 +121,7 @@ func (r *Registry) Write() error {
 }
 
 // Login attempts to authenticate with the registry.
-func (r *Registry) Login() error {
+func (r *Registry) Login(ctx context.Context) error {
 	// check if dry run is enabled
 	if r.DryRun {
 		logrus.Warning("dry_run enabled - skipping authentication with registry")
@@ -127,7 +145,7 @@ func (r *Registry) Login() error {
 	flags = append(flags, r.Name)
 
 	//nolint: gosec // ignore executing command as subprocess
-	e := exec.Command(_docker, append([]string{loginAction}, flags...)...)
+	e := exec.CommandContext(ctx, _docker, append([]string{loginAction}, flags...)...)
 
 	// set command stdout to OS stdout
 	e.Stdout = os.Stdout

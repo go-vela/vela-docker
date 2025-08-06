@@ -3,18 +3,20 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/mail"
 	"os"
 	"time"
 
-	"github.com/go-vela/vela-docker/version"
-
 	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 
 	_ "github.com/joho/godotenv/autoload"
+
+	"github.com/go-vela/vela-docker/version"
 )
 
 func main() {
@@ -31,36 +33,34 @@ func main() {
 	fmt.Fprintf(os.Stdout, "%s\n", string(bytes))
 
 	// create new CLI application
-	app := cli.NewApp()
-
-	// Plugin Information
-
-	app.Name = "vela-docker"
-	app.HelpName = "vela-docker"
-	app.Usage = "Vela Docker plugin for building and publishing images"
-	app.Copyright = "Copyright 2020 Target Brands, Inc. All rights reserved."
-	app.Authors = []*cli.Author{
-		{
-			Name:  "Vela Admins",
-			Email: "vela@target.com",
+	app := &cli.Command{
+		Name:      "vela-docker",
+		Usage:     "Vela Docker plugin for building and publishing images",
+		Copyright: "Copyright 2020 Target Brands, Inc. All rights reserved.",
+		Authors: []any{
+			&mail.Address{
+				Name:    "Vela Admins",
+				Address: "vela@target.com",
+			},
 		},
+		// Plugin Metadata
+		Version: v.Semantic(),
+		Action:  run,
 	}
 
-	// Plugin Metadata
-
-	app.Action = run
-	app.Compiled = time.Now()
-	app.Version = v.Semantic()
-
 	// Plugin Flags
-
 	app.Flags = []cli.Flag{
 		&cli.StringFlag{
-			EnvVars:  []string{"PARAMETER_LOG_LEVEL", "VELA_LOG_LEVEL", "DOCKER_LOG_LEVEL"},
-			FilePath: string("/vela/parameters/docker/log_level,/vela/secrets/docker/log_level"),
-			Name:     "log.level",
-			Usage:    "set log level - options: (trace|debug|info|warn|error|fatal|panic)",
-			Value:    "info",
+			Name:  "log.level",
+			Value: "info",
+			Usage: "set log level - options: (trace|debug|info|warn|error|fatal|panic)",
+			Sources: cli.NewValueSourceChain(
+				cli.EnvVar("PARAMETER_LOG_LEVEL"),
+				cli.EnvVar("VELA_LOG_LEVEL"),
+				cli.EnvVar("DOCKER_LOG_LEVEL"),
+				cli.File("/vela/parameters/docker/log_level"),
+				cli.File("/vela/secrets/docker/log_level"),
+			),
 		},
 	}
 
@@ -76,14 +76,14 @@ func main() {
 	// add registry flags
 	app.Flags = append(app.Flags, registryFlags...)
 
-	err = app.Run(os.Args)
+	err = app.Run(context.Background(), os.Args)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
 // run executes the plugin based off the configuration provided.
-func run(c *cli.Context) error {
+func run(ctx context.Context, c *cli.Command) error {
 	// set the log level for the plugin
 	switch c.String("log.level") {
 	case "t", "trace", "Trace", "TRACE":
@@ -174,5 +174,5 @@ func run(c *cli.Context) error {
 	}
 
 	// execute the plugin
-	return p.Exec()
+	return p.Exec(ctx)
 }

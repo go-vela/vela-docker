@@ -3,6 +3,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"os/exec"
@@ -10,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 const buildAction = "build"
@@ -124,239 +125,371 @@ type (
 // buildFlags represents for build settings on the cli.
 var buildFlags = []cli.Flag{
 	&cli.StringSliceFlag{
-		EnvVars:  []string{"PARAMETER_ADD_HOSTS", "DOCKER_ADD_HOSTS"},
-		FilePath: "/vela/parameters/docker/add_hosts,/vela/secrets/docker/add_hosts",
-		Name:     "build.add-hosts",
-		Usage:    "enables adding a custom host-to-IP mapping (host:ip)",
+		Name:  "build.add-hosts",
+		Usage: "enables adding a custom host-to-IP mapping (host:ip)",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_ADD_HOSTS"),
+			cli.EnvVar("DOCKER_ADD_HOSTS"),
+			cli.File("/vela/parameters/docker/add_hosts"),
+			cli.File("/vela/secrets/docker/add_hosts"),
+		),
 	},
 	&cli.StringSliceFlag{
-		EnvVars:  []string{"PARAMETER_BUILD_ARGS", "DOCKER_BUILD_ARGS"},
-		FilePath: "/vela/parameters/docker/build_args,/vela/secrets/docker/build_args",
-		Name:     "build.build-args",
-		Usage:    "enables setting build time arguments for the dockerfile",
+		Name:  "build.build-args",
+		Usage: "enables setting build time arguments for the dockerfile",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_BUILD_ARGS"),
+			cli.EnvVar("DOCKER_BUILD_ARGS"),
+			cli.File("/vela/parameters/docker/build_args"),
+			cli.File("/vela/secrets/docker/build_args"),
+		),
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"PARAMETER_CACHE_FROM", "DOCKER_CACHE_FROM"},
-		FilePath: "/vela/parameters/docker/cache_from,/vela/secrets/build/cache_from",
-		Name:     "build.cache-from",
-		Usage:    "enables setting images to consider as cache sources",
+		Name:  "build.cache-from",
+		Usage: "enables setting images to consider as cache sources",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_CACHE_FROM"),
+			cli.EnvVar("DOCKER_CACHE_FROM"),
+			cli.File("/vela/parameters/docker/cache_from"),
+			cli.File("/vela/secrets/docker/cache_from"),
+		),
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"PARAMETER_CGROUP_PARENT", "DOCKER_CGROUP_PARENT"},
-		FilePath: "/vela/parameters/docker/cgroup_parent,/vela/secrets/docker/cgroup_parent",
-		Name:     "build.cgroup-parent",
-		Usage:    "enables setting an optional parent cgroup for the container",
+		Name:  "build.cgroup-parent",
+		Usage: "enables setting an optional parent cgroup for the container",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_CGROUP_PARENT"),
+			cli.EnvVar("DOCKER_CGROUP_PARENT"),
+			cli.File("/vela/parameters/docker/cgroup_parent"),
+			cli.File("/vela/secrets/docker/cgroup_parent"),
+		),
 	},
 	&cli.BoolFlag{
-		EnvVars:  []string{"PARAMETER_COMPRESS", "DOCKER_COMPRESS"},
-		FilePath: "/vela/parameters/docker/compress,/vela/secrets/docker/compress",
-		Name:     "build.compress",
-		Usage:    "enables setting compression the build context using gzip",
+		Name:  "build.compress",
+		Usage: "enables setting compression the build context using gzip",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_COMPRESS"),
+			cli.EnvVar("DOCKER_COMPRESS"),
+			cli.File("/vela/parameters/docker/compress"),
+			cli.File("/vela/secrets/docker/compress"),
+		),
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"PARAMETER_CONTEXT", "DOCKER_CONTEXT"},
-		FilePath: "/vela/parameters/docker/context,/vela/secrets/docker/context",
-		Name:     "build.context",
-		Usage:    "enables setting the build context",
-		Value:    ".",
+		Name:  "build.context",
+		Value: ".",
+		Usage: "enables setting the build context",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_CONTEXT"),
+			cli.EnvVar("DOCKER_CONTEXT"),
+			cli.File("/vela/parameters/docker/context"),
+			cli.File("/vela/secrets/docker/context"),
+		),
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"PARAMETER_CPU", "DOCKER_CPU"},
-		FilePath: "/vela/parameters/docker/cpu,/vela/secrets/docker/cpu",
-		Name:     "build.cpu",
-		Usage:    "enables setting custom cpu options",
+		Name:  "build.cpu",
+		Usage: "enables setting custom cpu options",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_CPU"),
+			cli.EnvVar("DOCKER_CPU"),
+			cli.File("/vela/parameters/docker/cpu"),
+			cli.File("/vela/secrets/docker/cpu"),
+		),
 	},
 	&cli.BoolFlag{
-		EnvVars:  []string{"PARAMETER_DISABLE_CONTENT_TRUST", "DOCKER_DISABLE_CONTENT_TRUST"},
-		FilePath: "/vela/parameters/docker/disable-content-trust,/vela/secrets/docker/disable-content-trust",
-		Name:     "build.disable-content-trust",
-		Usage:    "enables skipping image verification (default true)",
+		Name:  "build.disable-content-trust",
+		Usage: "enables skipping image verification (default true)",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_DISABLE_CONTENT_TRUST"),
+			cli.EnvVar("DOCKER_DISABLE_CONTENT_TRUST"),
+			cli.File("/vela/parameters/docker/disable-content-trust"),
+			cli.File("/vela/secrets/docker/disable-content-trust"),
+		),
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"PARAMETER_FILE", "DOCKER_FILE"},
-		FilePath: "/vela/parameters/docker/file,/vela/secrets/docker/file",
-		Name:     "build.file",
-		Usage:    "enables setting the name of the Dockerfile (Default is 'PATH/Dockerfile')",
+		Name:  "build.file",
+		Usage: "enables setting the name of the Dockerfile (Default is 'PATH/Dockerfile')",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_FILE"),
+			cli.EnvVar("DOCKER_FILE"),
+			cli.File("/vela/parameters/docker/file"),
+			cli.File("/vela/secrets/docker/file"),
+		),
 	},
 	&cli.BoolFlag{
-		EnvVars:  []string{"PARAMETER_FORCE_RM", "DOCKER_FORCE_RM"},
-		FilePath: "/vela/parameters/docker/force_rm,/vela/secrets/docker/force_rm",
-		Name:     "build.force-rm",
-		Usage:    "enables setting always remove on intermediate containers",
+		Name:  "build.force-rm",
+		Usage: "enables setting always remove on intermediate containers",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_FORCE_RM"),
+			cli.EnvVar("DOCKER_FORCE_RM"),
+			cli.File("/vela/parameters/docker/force_rm"),
+			cli.File("/vela/secrets/docker/force_rm"),
+		),
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"PARAMETER_IMAGE_ID_FILE", "DOCKER_IMAGE_ID_FILE"},
-		FilePath: "/vela/parameters/docker/image_id_file,/vela/secrets/docker/image_id_file",
-		Name:     "build.image-id-file",
-		Usage:    "enables setting writing the image ID to the file",
+		Name:  "build.image-id-file",
+		Usage: "enables setting writing the image ID to the file",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_IMAGE_ID_FILE"),
+			cli.EnvVar("DOCKER_IMAGE_ID_FILE"),
+			cli.File("/vela/parameters/docker/image_id_file"),
+			cli.File("/vela/secrets/docker/image_id_file"),
+		),
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"PARAMETER_ISOLATION", "DOCKER_ISOLATION"},
-		FilePath: "/vela/parameters/docker/isolation,/vela/secrets/docker/isolation",
-		Name:     "build.isolation",
-		Usage:    "enables container isolation technology",
+		Name:  "build.isolation",
+		Usage: "enables container isolation technology",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_ISOLATION"),
+			cli.EnvVar("DOCKER_ISOLATION"),
+			cli.File("/vela/parameters/docker/isolation"),
+			cli.File("/vela/secrets/docker/isolation"),
+		),
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"PARAMETER_LABELS", "DOCKER_LABELS"},
-		FilePath: "/vela/parameters/docker/labels,/vela/secrets/docker/labels",
-		Name:     "build.labels",
-		Usage:    "enables setting metadata for an image",
+		Name:  "build.labels",
+		Usage: "enables setting metadata for an image",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_LABELS"),
+			cli.EnvVar("DOCKER_LABELS"),
+			cli.File("/vela/parameters/docker/labels"),
+			cli.File("/vela/secrets/docker/labels"),
+		),
 	},
 	&cli.StringSliceFlag{
-		EnvVars:  []string{"PARAMETER_MEMORY", "DOCKER_MEMORY"},
-		FilePath: "/vela/parameters/docker/memory,/vela/secrets/docker/memory",
-		Name:     "build.memory",
-		Usage:    "enables setting a memory limit",
+		Name:  "build.memory",
+		Usage: "enables setting a memory limit",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_MEMORY"),
+			cli.EnvVar("DOCKER_MEMORY"),
+			cli.File("/vela/parameters/docker/memory"),
+			cli.File("/vela/secrets/docker/memory"),
+		),
 	},
 	&cli.StringSliceFlag{
-		EnvVars:  []string{"PARAMETER_MEMORY_SWAPS", "DOCKER_MEMORY_SWAPS"},
-		FilePath: "/vela/parameters/docker/memory_swaps,/vela/secrets/docker/memory_swaps",
-		Name:     "build.memory-swaps",
-		Usage:    "enables setting a memory limit",
+		Name:  "build.memory-swaps",
+		Usage: "enables setting a memory limit",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_MEMORY_SWAPS"),
+			cli.EnvVar("DOCKER_MEMORY_SWAPS"),
+			cli.File("/vela/parameters/docker/memory_swaps"),
+			cli.File("/vela/secrets/docker/memory_swaps"),
+		),
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"PARAMETER_NETWORK", "DOCKER_NETWORK"},
-		FilePath: "/vela/parameters/docker/network,/vela/secrets/docker/network",
-		Name:     "build.network",
-		Usage:    "enables setting the networking mode for the RUN instructions during build (default \"default\")",
+		Name:  "build.network",
+		Usage: "enables setting the networking mode for the RUN instructions during build (default \"default\")",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_NETWORK"),
+			cli.EnvVar("DOCKER_NETWORK"),
+			cli.File("/vela/parameters/docker/network"),
+			cli.File("/vela/secrets/docker/network"),
+		),
 	},
 	&cli.BoolFlag{
-		EnvVars:  []string{"PARAMETER_NO_CACHE", "DOCKER_NO_CACHE"},
-		FilePath: "/vela/parameters/docker/no_cache,/vela/secrets/docker/no_cache",
-		Name:     "build.no-cache",
-		Usage:    "enables setting the networking mode for the RUN instructions during build (default \"default\")",
+		Name:  "build.no-cache",
+		Usage: "enables setting the networking mode for the RUN instructions during build (default \"default\")",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_NO_CACHE"),
+			cli.EnvVar("DOCKER_NO_CACHE"),
+			cli.File("/vela/parameters/docker/no_cache"),
+			cli.File("/vela/secrets/docker/no_cache"),
+		),
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"PARAMETER_OUTPUT", "DOCKER_OUTPUT"},
-		FilePath: "/vela/parameters/docker/output,/vela/secrets/docker/output",
-		Name:     "build.output",
-		Usage:    "set an output destination (format: type=local,dest=path)",
+		Name:  "build.output",
+		Usage: "set an output destination (format: type=local,dest=path)",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_OUTPUT"),
+			cli.EnvVar("DOCKER_OUTPUT"),
+			cli.File("/vela/parameters/docker/output"),
+			cli.File("/vela/secrets/docker/output"),
+		),
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"PARAMETER_PLATFORM", "DOCKER_PLATFORM"},
-		FilePath: "/vela/parameters/docker/platform,/vela/secrets/docker/platform",
-		Name:     "build.platform",
-		Usage:    "enables setting a platform if server is multi-platform capable",
+		Name:  "build.platform",
+		Usage: "enables setting a platform if server is multi-platform capable",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_PLATFORM"),
+			cli.EnvVar("DOCKER_PLATFORM"),
+			cli.File("/vela/parameters/docker/platform"),
+			cli.File("/vela/secrets/docker/platform"),
+		),
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"PARAMETER_PROGRESS", "DOCKER_PROGRESS"},
-		FilePath: "/vela/parameters/docker/progress,/vela/secrets/docker/progress",
-		Name:     "build.progress",
-		Usage:    "enables setting type of progress output - options (auto|plain|tty)",
+		Name:  "build.progress",
+		Usage: "enables setting type of progress output - options (auto|plain|tty)",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_PROGRESS"),
+			cli.EnvVar("DOCKER_PROGRESS"),
+			cli.File("/vela/parameters/docker/progress"),
+			cli.File("/vela/secrets/docker/progress"),
+		),
 	},
 	&cli.BoolFlag{
-		EnvVars:  []string{"PARAMETER_PULL", "DOCKER_PULL"},
-		FilePath: "/vela/parameters/docker/pull,/vela/secrets/docker/pull",
-		Name:     "build.pull",
-		Usage:    "enables always attempting to pull a newer version of the image",
+		Name:  "build.pull",
+		Usage: "enables always attempting to pull a newer version of the image",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_PULL"),
+			cli.EnvVar("DOCKER_PULL"),
+			cli.File("/vela/parameters/docker/pull"),
+			cli.File("/vela/secrets/docker/pull"),
+		),
 	},
 	&cli.BoolFlag{
-		EnvVars:  []string{"PARAMETER_QUIET", "DOCKER_QUIET"},
-		FilePath: "/vela/parameters/docker/quiet,/vela/secrets/docker/quiet",
-		Name:     "build.quiet",
-		Usage:    "enables suppressing the build output and print image ID on success",
+		Name:  "build.quiet",
+		Usage: "enables suppressing the build output and print image ID on success",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_QUIET"),
+			cli.EnvVar("DOCKER_QUIET"),
+			cli.File("/vela/parameters/docker/quiet"),
+			cli.File("/vela/secrets/docker/quiet"),
+		),
 	},
 	&cli.BoolFlag{
-		EnvVars:  []string{"PARAMETER_REMOVE", "DOCKER_REMOVE"},
-		FilePath: "/vela/parameters/docker/remove,/vela/secrets/docker/remove",
-		Name:     "build.remove",
-		Usage:    "enables removing the intermediate containers after a successful build (default true)",
-		Value:    true,
+		Name:  "build.remove",
+		Value: true,
+		Usage: "enables removing the intermediate containers after a successful build (default true)",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_REMOVE"),
+			cli.EnvVar("DOCKER_REMOVE"),
+			cli.File("/vela/parameters/docker/remove"),
+			cli.File("/vela/secrets/docker/remove"),
+		),
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"PARAMETER_REPO", "DOCKER_REPO"},
-		FilePath: "/vela/parameters/docker/repo,/vela/secrets/docker/repo",
-		Name:     "build.repo",
-		Usage:    "Docker repository name for the image",
+		Name:  "build.repo",
+		Usage: "Docker repository name for the image",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_REPO"),
+			cli.EnvVar("DOCKER_REPO"),
+			cli.File("/vela/parameters/docker/repo"),
+			cli.File("/vela/secrets/docker/repo"),
+		),
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"PARAMETER_SECRET", "DOCKER_SECRET"},
-		FilePath: "/vela/parameters/docker/secret,/vela/secrets/docker/secret",
-		Name:     "build.secret",
-		Usage:    "set a secret file to expose to the build (only if BuildKit enabled): id=mysecret,src=/local/secret",
+		Name:  "build.secret",
+		Usage: "set a secret file to expose to the build (only if BuildKit enabled): id=mysecret,src=/local/secret",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_SECRET"),
+			cli.EnvVar("DOCKER_SECRET"),
+			cli.File("/vela/parameters/docker/secret"),
+			cli.File("/vela/secrets/docker/secret"),
+		),
 	},
 	&cli.StringSliceFlag{
-		EnvVars:  []string{"PARAMETER_SECURITY_OPTS", "DOCKER_SECURITY_OPTS"},
-		FilePath: "/vela/parameters/docker/security_opts,/vela/secrets/docker/security_opts",
-		Name:     "build.security-opts",
-		Usage:    "enables setting security options",
+		Name:  "build.security-opts",
+		Usage: "enables setting security options",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_SECURITY_OPTS"),
+			cli.EnvVar("DOCKER_SECURITY_OPTS"),
+			cli.File("/vela/parameters/docker/security_opts"),
+			cli.File("/vela/secrets/docker/security_opts"),
+		),
 	},
 	&cli.StringSliceFlag{
-		EnvVars:  []string{"PARAMETER_SHM_SIZES", "DOCKER_SHM_SIZES"},
-		FilePath: "/vela/parameters/docker/shm_sizes,/vela/secrets/docker/shm_sizes",
-		Name:     "build.shm-sizes",
-		Usage:    "enables setting the size of /dev/shm",
+		Name:  "build.shm-sizes",
+		Usage: "enables setting the size of /dev/shm",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_SHM_SIZES"),
+			cli.EnvVar("DOCKER_SHM_SIZES"),
+			cli.File("/vela/parameters/docker/shm_sizes"),
+			cli.File("/vela/secrets/docker/shm_sizes"),
+		),
 	},
 	&cli.BoolFlag{
-		EnvVars:  []string{"PARAMETER_SQUASH", "DOCKER_SQUASH"},
-		FilePath: "/vela/parameters/docker/squash,/vela/secrets/docker/squash",
-		Name:     "build.squash",
-		Usage:    "enables setting squash newly built layers into a single new layer",
+		Name:  "build.squash",
+		Usage: "enables setting squash newly built layers into a single new layer",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_SQUASH"),
+			cli.EnvVar("DOCKER_SQUASH"),
+			cli.File("/vela/parameters/docker/squash"),
+			cli.File("/vela/secrets/docker/squash"),
+		),
 	},
 	&cli.StringSliceFlag{
-		EnvVars:  []string{"PARAMETER_SSH_COMPONENTS", "DOCKER_SSH_COMPONENTS"},
-		FilePath: "/vela/parameters/docker/ssh_components,/vela/secrets/docker/ssh_components",
-		Name:     "build.ssh-components",
-		Usage:    "enables setting an ssh agent socket or keys to expose to the build (only if BuildKit enabled) (format: default|<id>[=<socket>|<key>[,<key>]])",
+		Name:  "build.ssh-components",
+		Usage: "enables setting an ssh agent socket or keys to expose to the build (only if BuildKit enabled) (format: default|<id>[=<socket>|<key>[,<key>]])",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_SSH_COMPONENTS"),
+			cli.EnvVar("DOCKER_SSH_COMPONENTS"),
+			cli.File("/vela/parameters/docker/ssh_components"),
+			cli.File("/vela/secrets/docker/ssh_components"),
+		),
 	},
 	&cli.BoolFlag{
-		EnvVars:  []string{"PARAMETER_STREAM", "DOCKER_STREAM"},
-		FilePath: "/vela/parameters/docker/stream,/vela/secrets/docker/stream",
-		Name:     "build.stream",
-		Usage:    "enables streaming attaches to server to negotiate build context",
+		Name:  "build.stream",
+		Usage: "enables streaming attaches to server to negotiate build context",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_STREAM"),
+			cli.EnvVar("DOCKER_STREAM"),
+			cli.File("/vela/parameters/docker/stream"),
+			cli.File("/vela/secrets/docker/stream"),
+		),
 	},
 	&cli.StringSliceFlag{
-		EnvVars:  []string{"PARAMETER_TAGS", "DOCKER_TAGS"},
-		FilePath: "/vela/parameters/docker/tags,/vela/secrets/docker/tags",
-		Name:     "build.tags",
-		Usage:    "enables naming and optionally a tag in the 'name:tag' format",
+		Name:  "build.tags",
+		Usage: "enables naming and optionally a tag in the 'name:tag' format",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_TAGS"),
+			cli.EnvVar("DOCKER_TAGS"),
+			cli.File("/vela/parameters/docker/tags"),
+			cli.File("/vela/secrets/docker/tags"),
+		),
 	},
 	&cli.StringFlag{
-		EnvVars:  []string{"PARAMETER_TARGET", "DOCKER_TARGET"},
-		FilePath: "/vela/parameters/docker/target,/vela/secrets/docker/target",
-		Name:     "build.target",
-		Usage:    "enables setting the target build stage to build.",
+		Name:  "build.target",
+		Usage: "enables setting the target build stage to build.",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_TARGET"),
+			cli.EnvVar("DOCKER_TARGET"),
+			cli.File("/vela/parameters/docker/target"),
+			cli.File("/vela/secrets/docker/target"),
+		),
 	},
 	&cli.StringSliceFlag{
-		EnvVars:  []string{"PARAMETER_ULIMITS", "DOCKER_ULIMITS"},
-		FilePath: "/vela/parameters/docker/ulimits,/vela/secrets/docker/ulimits",
-		Name:     "build.ulimits",
-		Usage:    "enables setting ulimit options (default [])",
+		Name:  "build.ulimits",
+		Usage: "enables setting ulimit options (default [])",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_ULIMITS"),
+			cli.EnvVar("DOCKER_ULIMITS"),
+			cli.File("/vela/parameters/docker/ulimits"),
+			cli.File("/vela/secrets/docker/ulimits"),
+		),
 	},
 
 	// extract vars for open image specification labeling
 	&cli.StringFlag{
-		EnvVars: []string{"VELA_BUILD_AUTHOR_EMAIL"},
 		Name:    "label.author-email",
 		Usage:   "author from the source commit",
+		Sources: cli.EnvVars("VELA_BUILD_AUTHOR_EMAIL"),
 	},
 	&cli.StringFlag{
-		EnvVars: []string{"VELA_BUILD_COMMIT"},
 		Name:    "label.commit",
 		Usage:   "commit sha from the source commit",
+		Sources: cli.EnvVars("VELA_BUILD_COMMIT"),
 	},
 	&cli.IntFlag{
-		EnvVars: []string{"VELA_BUILD_NUMBER"},
 		Name:    "label.number",
 		Usage:   "build number",
+		Sources: cli.EnvVars("VELA_BUILD_NUMBER"),
 	},
 	&cli.StringFlag{
-		EnvVars: []string{"VELA_REPO_FULL_NAME"},
 		Name:    "label.full-name",
 		Usage:   "full name of the repository",
+		Sources: cli.EnvVars("VELA_REPO_FULL_NAME"),
 	},
 	&cli.StringFlag{
-		EnvVars: []string{"VELA_REPO_LINK"},
 		Name:    "label.url",
 		Usage:   "direct url of the repository",
+		Sources: cli.EnvVars("VELA_REPO_LINK"),
 	},
 }
 
 // Command formats and outputs the Build command from
 // the provided configuration to build a Docker image.
 //
-//nolint:funlen,gocyclo // Ignore line length
-func (b *Build) Command() *exec.Cmd {
+//nolint:gocyclo // Ignore line length
+func (b *Build) Command(ctx context.Context) *exec.Cmd {
 	logrus.Trace("creating docker build command from plugin configuration")
 
 	// variable to store flags for command
@@ -558,18 +691,18 @@ func (b *Build) Command() *exec.Cmd {
 
 	//nolint:gosec // this functionality is not exploitable the way
 	// the plugin accepts configuration
-	return exec.Command(_docker, append([]string{buildAction}, flags...)...)
+	return exec.CommandContext(ctx, _docker, append([]string{buildAction}, flags...)...)
 }
 
 // Exec formats and runs the commands for building a Docker image.
-func (b *Build) Exec() error {
+func (b *Build) Exec(ctx context.Context) error {
 	logrus.Trace("running build with provided configuration")
 
 	// add standardized image labels
 	b.Labels = append(b.Labels, b.AddLabels()...)
 
 	// create the build command for the file
-	cmd := b.Command()
+	cmd := b.Command(ctx)
 
 	// run the build command for the file
 	err := execCmd(cmd)

@@ -36,7 +36,7 @@ func TestDocker_Registry_Login(t *testing.T) {
 
 	// run tests
 	for _, test := range tests {
-		err := test.registry.Login()
+		err := test.registry.Login(t.Context())
 
 		if test.failure {
 			if err == nil {

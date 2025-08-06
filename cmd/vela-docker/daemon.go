@@ -3,12 +3,13 @@
 package main
 
 import (
+	"context"
 	"os/exec"
 	"strconv"
 	"time"
 
 	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 type (
@@ -58,16 +59,20 @@ type (
 // daemonFlags represents for daemon settings on the cli.
 var daemonFlags = []cli.Flag{
 	&cli.StringFlag{
-		EnvVars:  []string{"PARAMETER_DAEMON", "DOCKER_DAEMON"},
-		FilePath: "/vela/parameters/docker/daemon,/vela/secrets/docker/daemon",
-		Name:     "daemon",
-		Usage:    "enables specifying a network bridge IP",
+		Name:  "daemon",
+		Usage: "enables specifying a network bridge IP",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_DAEMON"),
+			cli.EnvVar("DOCKER_DAEMON"),
+			cli.File("/vela/parameters/docker/daemon"),
+			cli.File("/vela/secrets/docker/daemon"),
+		),
 	},
 }
 
 // Command formats and outputs the Build command from
 // the provided configuration to push a Docker image.
-func (d *Daemon) Command() *exec.Cmd {
+func (d *Daemon) Command(ctx context.Context) *exec.Cmd {
 	logrus.Trace("creating dockerd command from plugin configuration")
 
 	// variable to store flags for command
@@ -128,15 +133,15 @@ func (d *Daemon) Command() *exec.Cmd {
 	flags = append(flags, d.Storage.Flags()...)
 
 	// the plugin accepts configuration
-	return exec.Command(_dockerd, flags...)
+	return exec.CommandContext(ctx, _dockerd, flags...)
 }
 
 // Exec formats and runs the commands for pushing a Docker image.
-func (d *Daemon) Exec() error {
+func (d *Daemon) Exec(ctx context.Context) error {
 	logrus.Trace("running dockerd with provided configuration")
 
 	// create the push command for the file
-	cmd := d.Command()
+	cmd := d.Command(ctx)
 
 	// start the daemon in a thread
 	go func() {
@@ -152,7 +157,7 @@ func (d *Daemon) Exec() error {
 
 	// iterate through with a retryLimit
 	for i := 0; i < retryLimit; i++ {
-		err := versionCmd().Run()
+		err := versionCmd(ctx).Run()
 		if err == nil {
 			break
 		}

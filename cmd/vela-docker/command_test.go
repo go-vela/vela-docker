@@ -4,13 +4,12 @@ package main
 
 import (
 	"os/exec"
-	"reflect"
 	"testing"
 )
 
 func TestDocker_execCmd(t *testing.T) {
 	// setup types
-	e := exec.Command("echo", "hello")
+	e := exec.CommandContext(t.Context(), "echo", "hello")
 
 	err := execCmd(e)
 	if err != nil {
@@ -20,14 +19,15 @@ func TestDocker_execCmd(t *testing.T) {
 
 func TestDocker_versionCmd(t *testing.T) {
 	// setup types
-	want := exec.Command(
+	want := exec.CommandContext(
+		t.Context(),
 		_docker,
 		"version",
 	)
 
-	got := versionCmd()
+	got := versionCmd(t.Context())
 
-	if !reflect.DeepEqual(got, want) {
+	if got.String() != want.String() {
 		t.Errorf("versionCmd is %v, want %v", got, want)
 	}
 }
