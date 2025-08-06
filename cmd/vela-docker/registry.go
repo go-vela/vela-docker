@@ -14,7 +14,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/urfave/cli/v3"
 
-	"github.com/go-vela/types/constants"
+	"github.com/go-vela/server/constants"
 )
 
 const (
