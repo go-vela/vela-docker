@@ -3,6 +3,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/exec"
@@ -36,7 +37,7 @@ func execCmd(e *exec.Cmd) error {
 
 // infoCmd is a helper function to check if
 // the daemon is ready.
-func infoCmd() *exec.Cmd {
+func infoCmd(ctx context.Context) *exec.Cmd {
 	logrus.Trace("creating docker info command")
 
 	// variable to store flags for command
@@ -45,12 +46,12 @@ func infoCmd() *exec.Cmd {
 	// add flag for version img command
 	flags = append(flags, "info")
 
-	return exec.Command(_docker, flags...)
+	return exec.CommandContext(ctx, _docker, flags...)
 }
 
 // versionCmd is a helper function to output
 // the client and server version information.
-func versionCmd() *exec.Cmd {
+func versionCmd(ctx context.Context) *exec.Cmd {
 	logrus.Trace("creating docker version command")
 
 	// variable to store flags for command
@@ -59,5 +60,5 @@ func versionCmd() *exec.Cmd {
 	// add flag for version img command
 	flags = append(flags, "version")
 
-	return exec.Command(_docker, flags...)
+	return exec.CommandContext(ctx, _docker, flags...)
 }

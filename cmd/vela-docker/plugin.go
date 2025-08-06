@@ -3,6 +3,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/sirupsen/logrus"
@@ -21,23 +22,23 @@ type Plugin struct {
 }
 
 // Exec formats and runs the commands for building and publishing a Docker image.
-func (p *Plugin) Exec() error {
+func (p *Plugin) Exec(ctx context.Context) error {
 	logrus.Debug("running plugin with provided configuration")
 
 	// start the docker daemon with configuration
-	err := p.Daemon.Exec()
+	err := p.Daemon.Exec(ctx)
 	if err != nil {
 		return err
 	}
 
 	// output the docker version
-	err = execCmd(versionCmd())
+	err = execCmd(versionCmd(ctx))
 	if err != nil {
 		return err
 	}
 
 	// output the docker information
-	err = execCmd(infoCmd())
+	err = execCmd(infoCmd(ctx))
 	if err != nil {
 		return err
 	}
@@ -49,13 +50,13 @@ func (p *Plugin) Exec() error {
 	}
 
 	// create registry login to validate authentication
-	err = p.Registry.Login()
+	err = p.Registry.Login(ctx)
 	if err != nil {
 		return err
 	}
 
 	// execute build configuration
-	err = p.Build.Exec()
+	err = p.Build.Exec(ctx)
 	if err != nil {
 		return err
 	}
@@ -68,7 +69,7 @@ func (p *Plugin) Exec() error {
 			p.Push.Tag = t
 
 			// execute push configuration
-			err = p.Push.Exec()
+			err = p.Push.Exec(ctx)
 			if err != nil {
 				return err
 			}

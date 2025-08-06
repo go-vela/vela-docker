@@ -3,10 +3,11 @@
 package main
 
 import (
+	"context"
 	"os/exec"
 
 	"github.com/sirupsen/logrus"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 const pushAction = "push"
@@ -22,16 +23,19 @@ type Push struct {
 // pushFlags represents for push settings on the cli.
 var pushFlags = []cli.Flag{
 	&cli.BoolFlag{
-		EnvVars:  []string{"PARAMETER_DISABLE_CONTENT_TRUST", "PARAMETER_DISABLE_CONTENT_TRUST"},
-		FilePath: "/vela/parameters/docker/disable-content-trust,/vela/secrets/docker/disable-content-trust",
-		Name:     "push.disable-content-trust",
-		Usage:    "enables skipping image verification (default true)",
+		Name:  "push.disable-content-trust",
+		Usage: "enables skipping image verification (default true)",
+		Sources: cli.NewValueSourceChain(
+			cli.EnvVar("PARAMETER_DISABLE_CONTENT_TRUST"),
+			cli.File("/vela/parameters/docker/disable-content-trust"),
+			cli.File("/vela/secrets/docker/disable-content-trust"),
+		),
 	},
 }
 
 // Command formats and outputs the Push command from
 // the provided configuration to push a Docker image.
-func (p *Push) Command() *exec.Cmd {
+func (p *Push) Command(ctx context.Context) *exec.Cmd {
 	logrus.Trace("creating docker push command from plugin configuration")
 
 	// variable to store flags for command
@@ -48,15 +52,15 @@ func (p *Push) Command() *exec.Cmd {
 
 	//nolint: gosec // this functionality is not exploitable the way
 	// the plugin accepts configuration
-	return exec.Command(_docker, append([]string{pushAction}, flags...)...)
+	return exec.CommandContext(ctx, _docker, append([]string{pushAction}, flags...)...)
 }
 
 // Exec formats and runs the commands for pushing a Docker image.
-func (p *Push) Exec() error {
+func (p *Push) Exec(ctx context.Context) error {
 	logrus.Trace("running push with provided configuration")
 
 	// create the push command for the file
-	cmd := p.Command()
+	cmd := p.Command(ctx)
 
 	// run the push command for the file
 	err := execCmd(cmd)
