@@ -4,7 +4,7 @@
 ##    docker build --no-cache --target certs -t vela-docker:certs .    ##
 #########################################################################
 
-FROM alpine:3.23.3@sha256:25109184c71bdad752c8312a8623239686a9a2071e8825f20acb8f2198c3f659 as certs
+FROM alpine:3.24.2@sha256:294b683cb724975bec92580e1e685676bd4b50bda910ddb8c51d4cabeaec77e6 as certs
 
 RUN apk add --update --no-cache ca-certificates
 
@@ -12,7 +12,7 @@ RUN apk add --update --no-cache ca-certificates
 ##    docker build --no-cache -t vela-docker:local .    ##
 ##########################################################
 
-FROM docker:29.2-dind@sha256:68f6d9ab84623d1116c5432a3b924a07ee09960e6129ca1cb03ef14010588cb4
+FROM docker:29.9-dind@sha256:0b6d18a4a222e71c88be6034926b4f6cde2fc33c2218643d03ccfddc65995470
 
 ENV DOCKER_HOST=unix:///var/run/docker.sock
 
